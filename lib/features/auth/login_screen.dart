@@ -13,7 +13,7 @@ import 'package:elimupepe/core/theme/app_page_transitions.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:elimupepe/features/teacher/teacher_dashboard.dart';
 import 'package:elimupepe/app/app_services.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
+import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'package:elimupepe/features/parental_control/parent_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -500,9 +500,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const WebViewContentScreen(
+                    builder: (_) => const SsoWebViewScreen(
                       title: 'Terms & Conditions',
-                      url: 'https://loho-stack.github.io/app-policies/',
+                      publicUrl: 'https://loho-stack.github.io/app-policies/',
                     ),
                   ),
                 ),
@@ -524,9 +524,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const WebViewContentScreen(
+                    builder: (_) => const SsoWebViewScreen(
                       title: 'Privacy Policy',
-                      url:
+                      publicUrl:
                           'https://loho-stack.github.io/app-policies/index.html',
                     ),
                   ),

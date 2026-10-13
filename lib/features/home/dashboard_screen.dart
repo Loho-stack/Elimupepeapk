@@ -1,3 +1,4 @@
+import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -19,9 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elimupepe/core/utils/image_url_resolver.dart';
 import 'package:elimupepe/features/profile/profile_screen.dart';
 import 'package:elimupepe/features/parental_control/parental_gate.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
 import 'package:elimupepe/features/quiz/learner_dashboard_api_service.dart';
-import 'package:elimupepe/core/utils/error_feedback.dart';
 
 class GamifiedDashboardScreen extends StatefulWidget {
   const GamifiedDashboardScreen({
@@ -98,30 +97,8 @@ class _GamifiedDashboardScreenState extends State<GamifiedDashboardScreen> {
       _isOpeningStudentDashboard = true;
     });
     try {
-      final targetUrl = '${AppEndpoints.webBaseUrl}$intendedPath';
-      final webviewLoginUrl = await LearnerDashboardApiService.instance
-          .fetchWebviewLoginUrl(targetUrl: targetUrl);
-
-      if (!mounted) {
-        return;
-      }
-
-      if (webviewLoginUrl == null) {
-        await ErrorFeedback.showErrorDialog(
-          context,
-          title: 'Secure access unavailable',
-          error: 'Please check your network connection and try again.',
-          fallback: 'Could not open this area securely. Please try again.',
-        );
-        return;
-      }
-
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) =>
-              WebViewContentScreen(title: title, url: webviewLoginUrl),
-        ),
-      );
+      if (!mounted) return;
+      await SsoWebViewScreen.open(context, title: title, path: intendedPath);
     } finally {
       if (mounted) {
         setState(() {

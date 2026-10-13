@@ -1,3 +1,5 @@
+import 'package:elimupepe/core/webview/webview_policy.dart';
+import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:elimupepe/models/menu_item.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
@@ -5,7 +7,6 @@ import 'package:elimupepe/core/widgets/elimu_card.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:elimupepe/core/utils/image_url_resolver.dart';
 import 'package:elimupepe/features/quiz/quiz_session_screen.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
 import 'package:elimupepe/features/quiz/learner_dashboard_api_service.dart';
 import 'package:elimupepe/core/utils/error_feedback.dart';
 
@@ -391,42 +392,31 @@ class _CategoryItemsScreenState extends State<CategoryItemsScreen> {
       return;
     }
 
-    String finalUrl = normalizedUrl;
+    // Virtual labs open the simulation page; our own pages open signed in;
+    // everything else is a public page (other hosts leave the app).
+    String? ssoPath;
     if (widget.menuItem.id == 'virtual_labs' && item is Map<String, dynamic>) {
       final simulationId =
           item['phet_id']?.toString() ?? item['id']?.toString() ?? '';
-      if (simulationId.isNotEmpty) {
-        final webviewLoginUrl = await LearnerDashboardApiService.instance
-            .fetchWebviewLoginUrl(
-              targetUrl: '${AppEndpoints.webBaseUrl}/phet/simulations/$simulationId',
-            );
-        if (webviewLoginUrl != null) {
-          finalUrl = webviewLoginUrl;
-        }
-      }
-    } else if (_shouldWrapWithWebviewLogin(normalizedUrl)) {
-      final webviewLoginUrl = await LearnerDashboardApiService.instance
-          .fetchWebviewLoginUrl(targetUrl: normalizedUrl);
-      if (webviewLoginUrl == null) {
-        if (!mounted) return;
-        await ErrorFeedback.showErrorDialog(
-          context,
-          title: 'Secure content unavailable',
-          error: 'Please check your network connection and try again.',
-          fallback: 'Could not open this content securely. Please try again.',
-        );
-        return;
-      }
-      finalUrl = webviewLoginUrl;
+      if (simulationId.isNotEmpty) ssoPath = '/phet/simulations/$simulationId';
+    }
+    final parsed = Uri.tryParse(normalizedUrl);
+    if (ssoPath == null &&
+        parsed != null &&
+        _shouldWrapWithWebviewLogin(normalizedUrl) &&
+        WebviewPolicy(ownHost: AppEndpoints.primaryHost)
+            .isOwnHost(parsed.host)) {
+      ssoPath = parsed.hasQuery ? '${parsed.path}?${parsed.query}' : parsed.path;
     }
 
     if (!mounted) return;
 
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => WebViewContentScreen(title: title, url: finalUrl),
-      ),
-    );
+    if (ssoPath != null && WebviewPolicy.isSafeIntendedPath(ssoPath)) {
+      await SsoWebViewScreen.open(context, title: title, path: ssoPath);
+    } else {
+      await SsoWebViewScreen.openPublic(context,
+          title: title, url: normalizedUrl);
+    }
   }
 
   bool _shouldOpenAsQuiz(dynamic item) {

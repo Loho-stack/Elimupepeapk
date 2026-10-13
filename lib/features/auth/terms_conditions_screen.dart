@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
+import 'package:elimupepe/core/webview/sso_webview.dart';
 
 class TermsConditionsScreen extends StatelessWidget {
   const TermsConditionsScreen({super.key});
@@ -9,9 +9,9 @@ class TermsConditionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const WebViewContentScreen(
+    return const SsoWebViewScreen(
       title: 'Terms & Conditions',
-      url: _termsUrl,
+      publicUrl: _termsUrl,
     );
   }
 }

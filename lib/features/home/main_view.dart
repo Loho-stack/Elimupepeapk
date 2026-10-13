@@ -1,3 +1,4 @@
+import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -8,7 +9,6 @@ import 'package:elimupepe/core/widgets/elimu_card.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elimupepe/features/home/category_items_screen.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
 import 'package:elimupepe/features/quiz/learner_dashboard_api_service.dart';
 import 'package:elimupepe/features/auth/welcome_screen.dart';
 
@@ -272,30 +272,7 @@ class _MainViewState extends State<MainView> {
 
     final intendedPath = MenuItem.directIntendedPathFor(item.id);
     if (intendedPath != null) {
-      final targetUrl = 'https://elimupepe.loholearning.co.ke$intendedPath';
-      final webviewLoginUrl = await LearnerDashboardApiService.instance
-          .fetchWebviewLoginUrl(targetUrl: targetUrl);
-
-      if (!mounted) return;
-
-      if (webviewLoginUrl == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Could not open this area securely. Please try again.',
-            ),
-          ),
-        );
-        return;
-      }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              WebViewContentScreen(title: item.title, url: webviewLoginUrl),
-        ),
-      );
+      await SsoWebViewScreen.open(context, title: item.title, path: intendedPath);
       return;
     }
 
@@ -1388,26 +1365,8 @@ class _MainViewState extends State<MainView> {
   ];
 
   Future<void> _openGradeBook() async {
-    final targetUrl = 'https://elimupepe.loholearning.co.ke/student/gradebook';
-    final webviewLoginUrl = await LearnerDashboardApiService.instance
-        .fetchWebviewLoginUrl(targetUrl: targetUrl);
-
-    if (!mounted) return;
-
-    if (webviewLoginUrl == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open Grade Book right now.')),
-      );
-      return;
-    }
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            WebViewContentScreen(title: 'Grade Book', url: webviewLoginUrl),
-      ),
-    );
+    await SsoWebViewScreen.open(context,
+        title: 'Grade Book', path: '/student/gradebook');
   }
 
   Widget _buildWeeklyGoalHero() {

@@ -1,12 +1,9 @@
+import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:elimupepe/models/menu_item.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:elimupepe/features/home/category_items_screen.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
-import 'package:elimupepe/features/quiz/learner_dashboard_api_service.dart';
-import 'package:elimupepe/core/utils/error_feedback.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -16,28 +13,7 @@ class MenuScreen extends StatelessWidget {
 
     final intendedPath = MenuItem.directIntendedPathFor(item.id);
     if (intendedPath != null) {
-      final targetUrl = '${AppEndpoints.webBaseUrl}$intendedPath';
-      final webviewLoginUrl = await LearnerDashboardApiService.instance
-          .fetchWebviewLoginUrl(targetUrl: targetUrl);
-
-      if (!context.mounted) return;
-
-      if (webviewLoginUrl == null) {
-        await ErrorFeedback.showErrorDialog(
-          context,
-          title: 'Secure access unavailable',
-          error: 'Please check your network connection and try again.',
-          fallback: 'Could not open this area securely. Please try again.',
-        );
-        return;
-      }
-
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) =>
-              WebViewContentScreen(title: item.title, url: webviewLoginUrl),
-        ),
-      );
+      await SsoWebViewScreen.open(context, title: item.title, path: intendedPath);
       return;
     }
 

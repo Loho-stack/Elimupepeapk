@@ -1,3 +1,4 @@
+import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -24,7 +25,6 @@ import 'package:firebase_performance/firebase_performance.dart';
 import 'package:elimupepe/features/settings/settings_screen.dart';
 import 'package:elimupepe/features/home/category_items_screen.dart';
 import 'package:elimupepe/core/services/cloud_sync_service_php.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
 import 'package:elimupepe/features/quiz/learner_dashboard_api_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -679,30 +679,8 @@ class _HomeScreenState extends State<HomeScreen>
     required String title,
     required String intendedPath,
   }) async {
-    final targetUrl = '${AppEndpoints.webBaseUrl}$intendedPath';
-    final webviewLoginUrl = await LearnerDashboardApiService.instance
-        .fetchWebviewLoginUrl(targetUrl: targetUrl);
-
-    if (!mounted) {
-      return;
-    }
-
-    if (webviewLoginUrl == null) {
-      await ErrorFeedback.showErrorDialog(
-        context,
-        title: 'Secure access unavailable',
-        error: 'Please check your network connection and try again.',
-        fallback: 'Could not open this area securely. Please try again.',
-      );
-      return;
-    }
-
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) =>
-            WebViewContentScreen(title: title, url: webviewLoginUrl),
-      ),
-    );
+    if (!mounted) return;
+    await SsoWebViewScreen.open(context, title: title, path: intendedPath);
   }
 
   @override

@@ -1,8 +1,8 @@
+import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elimupepe/features/auth/welcome_screen.dart';
@@ -11,9 +11,6 @@ import 'package:elimupepe/features/settings/about_screen.dart';
 import 'package:elimupepe/core/services/user_data_service.dart';
 import 'package:elimupepe/features/settings/notifications_screen.dart';
 import 'package:elimupepe/features/parental_control/parental_gate.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
-import 'package:elimupepe/features/quiz/learner_dashboard_api_service.dart';
-import 'package:elimupepe/core/utils/error_feedback.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -39,31 +36,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
     required String intendedPath,
   }) async {
-    final targetUrl = '${AppEndpoints.webBaseUrl}$intendedPath';
-    final webviewLoginUrl = await LearnerDashboardApiService.instance
-        .fetchWebviewLoginUrl(targetUrl: targetUrl);
-
-    if (!mounted) {
-      return;
-    }
-
-    if (webviewLoginUrl == null) {
-      await ErrorFeedback.showErrorDialog(
-        context,
-        title: 'Secure access unavailable',
-        error: 'Please check your network connection and try again.',
-        fallback: 'Could not open this area securely. Please try again.',
-      );
-      return;
-    }
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            WebViewContentScreen(title: title, url: webviewLoginUrl),
-      ),
-    );
+    if (!mounted) return;
+    await SsoWebViewScreen.open(context, title: title, path: intendedPath);
   }
 
   @override

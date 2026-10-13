@@ -43,6 +43,7 @@ abstract final class ClayIcons {
   static const IconData lock = LucideIcons.lock;
   static const IconData inbox = LucideIcons.inbox;
   static const IconData chevronRight = LucideIcons.chevronRight;
+  static const IconData refresh = LucideIcons.refreshCw;
   static const IconData bell = LucideIcons.bell;
   static const IconData children = LucideIcons.baby;
   static const IconData chalkboard = LucideIcons.presentation;

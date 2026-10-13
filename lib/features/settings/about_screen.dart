@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:elimupepe/features/auth/privacy_policy_screen.dart';
-import 'package:elimupepe/features/settings/webview_content_screen.dart';
+import 'package:elimupepe/core/webview/sso_webview.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -42,9 +42,9 @@ class _AboutScreenState extends State<AboutScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const WebViewContentScreen(
+        builder: (_) => const SsoWebViewScreen(
           title: 'Terms & Conditions',
-          url: 'https://loho-stack.github.io/app-policies/',
+          publicUrl: 'https://loho-stack.github.io/app-policies/',
         ),
       ),
     );
