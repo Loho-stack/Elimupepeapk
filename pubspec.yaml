@@ -68,6 +68,7 @@ dependencies:
   flutter_animate: ^4.5.0 # For animations
   image_picker: ^1.1.2
   connectivity_plus: ^6.1.5
+  lucide_icons_flutter: ^3.1.25 # Lucide icons (see docs/decisions/0001-icons.md)
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -110,6 +111,22 @@ flutter:
     - assets/images/
     - assets/ebooks/
     - assets/offline/
+    - assets/fonts/licenses/
+
+  fonts:
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka.ttf
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito.ttf
+        - asset: assets/fonts/Nunito-Italic.ttf
+          style: italic
+    - family: OpenDyslexic
+      fonts:
+        - asset: assets/fonts/OpenDyslexic3-Regular.ttf
+        - asset: assets/fonts/OpenDyslexic3-Bold.ttf
+          weight: 700
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
