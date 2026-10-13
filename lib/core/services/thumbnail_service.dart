@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:pdfx/pdfx.dart';
@@ -77,7 +78,7 @@ class ThumbnailService {
 
       return image.bytes;
     } catch (e) {
-      print('Error generating thumbnail: $e');
+      if (kDebugMode) debugPrint('Error generating thumbnail');
       return null;
     }
   }
@@ -131,7 +132,7 @@ class ThumbnailService {
         dir.deleteSync(recursive: true);
       }
     } catch (e) {
-      print('Error clearing thumbnail cache: $e');
+      if (kDebugMode) debugPrint('Error clearing thumbnail cache');
     }
   }
 

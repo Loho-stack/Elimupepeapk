@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:elimupepe/core/widgets/elimu_button.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
@@ -20,7 +20,6 @@ class UpdateProfileScreen extends StatefulWidget {
 }
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
-  static const String _avatarCacheKeyPref = 'profile_image_cache_key';
   final _formKey = GlobalKey<FormState>();
 
   String _selectedAvatar =
@@ -60,14 +59,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   }
 
   Future<void> _loadCachedProfile() async {
-    final prefs = await SharedPreferences.getInstance();
+    // Only the display name and avatar are kept on the device; the email is
+    // not stored locally, so that field starts empty.
+    final profile = await AppServices.instance.profile.read();
     if (!mounted) return;
     setState(() {
-      _selectedAvatar = prefs.getString('profile_image_url') ?? _selectedAvatar;
-      _nameController.text =
-          prefs.getString('user_name') ?? _nameController.text;
-      _emailController.text =
-          prefs.getString('user_email') ?? _emailController.text;
+      _selectedAvatar = profile.avatarUrl ?? _selectedAvatar;
+      _nameController.text = profile.name ?? _nameController.text;
     });
   }
 
@@ -106,24 +104,18 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     });
 
     if (success) {
-      final prefs = await SharedPreferences.getInstance();
+      final profile = AppServices.instance.profile;
       final avatarCacheKey = DateTime.now().millisecondsSinceEpoch.toString();
       final refreshedAvatar = ImageUrlResolver.withCacheBuster(
         _selectedAvatar,
         cacheKey: avatarCacheKey,
       );
 
-      await prefs.setString(
-        'profile_image_url',
-        refreshedAvatar ?? _selectedAvatar,
+      await profile.update(
+        name: _nameController.text,
+        avatarUrl: refreshedAvatar ?? _selectedAvatar,
       );
-      await prefs.setString(
-        'user_avatar',
-        refreshedAvatar ?? _selectedAvatar,
-      );
-      await prefs.setString(_avatarCacheKeyPref, avatarCacheKey);
-      await prefs.setString('user_name', _nameController.text.trim());
-      await prefs.setString('user_email', _nameController.text.trim());
+      profile.avatarCacheKey = avatarCacheKey;
 
       messenger.showSnackBar(
         const SnackBar(
@@ -180,11 +172,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
           _selectedAvatar = refreshedAvatar ?? newAvatarUrl;
         });
 
-        // Update local storage
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('profile_image_url', _selectedAvatar);
-        await prefs.setString('user_avatar', _selectedAvatar);
-        await prefs.setString(_avatarCacheKeyPref, avatarCacheKey);
+        final profile = AppServices.instance.profile;
+        await profile.update(avatarUrl: _selectedAvatar);
+        profile.avatarCacheKey = avatarCacheKey;
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -388,10 +378,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
     if (shouldDelete == true && mounted) {
       final success = await AuthService.instance.deleteAccount();
-
-      // Clear locally cached profile information anyway
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
 
       if (!mounted) return;
 

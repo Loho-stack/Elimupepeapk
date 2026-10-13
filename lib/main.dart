@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:elimupepe/app/app_config.dart';
+import 'package:elimupepe/app/app_services.dart';
+import 'package:elimupepe/features/auth/welcome_screen.dart';
 import 'package:elimupepe/core/services/analytics_service.dart';
 import 'package:elimupepe/core/theme/app_page_transitions.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
@@ -14,6 +16,18 @@ import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/services.dart';
+
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
+
+/// A 401 that could not be refreshed (or an account that was disabled):
+/// wipe the device and go back to the welcome flow.
+Future<void> _onSessionExpired() async {
+  await AppServices.instance.endSession();
+  appNavigatorKey.currentState?.pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+    (route) => false,
+  );
+}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,14 +98,21 @@ class _AppBootstrapperState extends State<AppBootstrapper> {
         DeviceOrientation.landscapeRight,
       ]);
     } catch (e, stackTrace) {
-      debugPrint('Firebase initialization failed: $e');
+      if (kDebugMode) debugPrint('Firebase initialization failed');
       _recordCrashSafely(e, stackTrace);
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isReady = true;
-        });
-      }
+    }
+
+    // Remove what older versions stored (saved passwords, PII in
+    // SharedPreferences) before any screen reads it.
+    try {
+      await AppServices.instance.runStartup();
+    } catch (_) {}
+    AppServices.instance.sessionExpired.addListener(_onSessionExpired);
+
+    if (mounted) {
+      setState(() {
+        _isReady = true;
+      });
     }
   }
 
@@ -139,6 +160,7 @@ class SecureElimupepeApp extends StatelessWidget {
           foregroundColor: AppColors.textLight,
         ),
       ),
+      navigatorKey: appNavigatorKey,
       navigatorObservers: [if (analyticsObserver != null) analyticsObserver],
       home: const AuthGate(),
     );

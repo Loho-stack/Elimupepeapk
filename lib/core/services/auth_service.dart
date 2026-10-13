@@ -2,9 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/auth/token_store.dart';
 import 'package:elimupepe/core/utils/error_feedback.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:elimupepe/core/services/webview_session_service.dart';
 
 class LoginResult {
   final bool success;
@@ -49,7 +46,8 @@ class AuthService {
   /// The shared client: bearer token, 401 and 429 handling, offline check.
   Dio get _dio => AppServices.instance.apiClient.api;
 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  /// Same secure store as the tokens, so logout wipes everything at once.
+  _SessionKv get _secureStorage => _SessionKv(AppServices.instance.kv);
 
   Future<LoginResult> login({
     required String studentId,
@@ -71,7 +69,15 @@ class AuthService {
         );
       }
 
-      Response<dynamic> response = await _dio.post(
+      if (AppServices.instance.config.appApiV1Login) {
+        return await loginWithAppApi(
+          role: 'student',
+          identifier: normalizedStudentId,
+          password: password,
+        );
+      }
+
+      final Response<dynamic> response = await _dio.post(
         '/v1/auth/login',
         data: {'student_id': normalizedStudentId, 'password': password},
         options: Options(
@@ -79,23 +85,6 @@ class AuthService {
           extra: const {'noAuth': true},
         ),
       );
-
-      // Some accounts require confirmation to logout other active devices.
-      // Retry with force=true to complete the login handshake automatically.
-      if (_hasMultipleLoginConflict(response.data)) {
-        response = await _dio.post(
-          '/v1/auth/login',
-          data: {
-            'student_id': normalizedStudentId,
-            'password': password,
-            'force': true,
-          },
-          options: Options(
-            validateStatus: (_) => true,
-            extra: const {'noAuth': true},
-          ),
-        );
-      }
 
       if (response.statusCode != 200) {
         final message =
@@ -176,22 +165,33 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    final token = await getToken();
+    final tokens = await _tokens.read();
 
-    if (token != null && token.isNotEmpty) {
+    if (tokens != null) {
       try {
-        await _dio.post(
-          '/v1/auth/logout',
-          data: const <String, dynamic>{},
-          options: Options(headers: {'Authorization': 'Bearer $token'}),
-        );
+        if (tokens.canRefresh) {
+          // Logged in through the App API v1: revoke this device only.
+          await AppServices.instance.apiClient.appV1.post(
+            '/auth/logout',
+            data: const <String, dynamic>{},
+          );
+        } else {
+          await _dio.post(
+            '/v1/auth/logout',
+            data: const <String, dynamic>{},
+            options: Options(
+              headers: {'Authorization': 'Bearer ${tokens.accessToken}'},
+            ),
+          );
+        }
       } catch (_) {
-        // Ignore remote logout errors and proceed with local token cleanup.
+        // Ignore remote logout errors and proceed with local cleanup.
       }
     }
 
-    await _clearSavedSession();
-    await WebViewSessionService.clear();
+    // Secure storage, preferences (except accessibility), webview cookies,
+    // cache and storage. Keeps the Student ID only if "Remember me" is on.
+    await AppServices.instance.endSession();
   }
 
   Future<bool> deleteAccount() async {
@@ -204,9 +204,7 @@ class AuthService {
           options: Options(headers: {'Authorization': 'Bearer $token'}),
         );
         if (response.statusCode == 200 || response.statusCode == 204) {
-          await _clearSavedSession();
-          await _clearRememberedLogin();
-          await WebViewSessionService.clear();
+          await AppServices.instance.endSession(keepRemembered: false);
           return true;
         }
       } catch (_) {
@@ -215,9 +213,7 @@ class AuthService {
       }
     }
 
-    await _clearSavedSession();
-    await _clearRememberedLogin();
-    await WebViewSessionService.clear();
+    await AppServices.instance.endSession(keepRemembered: false);
     return false;
   }
 
@@ -248,8 +244,114 @@ class AuthService {
     }
     final name = user['name'] ?? user['full_name'] ?? user['first_name'];
     if (name is String && name.trim().isNotEmpty) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_name', name.trim());
+      await AppServices.instance.profile.update(name: name);
+    }
+  }
+
+  /// The signed-in learner's Student ID (secure storage).
+  Future<String?> getSavedStudentId() async {
+    final v = await _readSecureValue(_studentIdKey);
+    return (v == null || v.isEmpty) ? null : v;
+  }
+
+  /// Login through the App API v1 (`/api/app/v1/auth/{role}/login`), used
+  /// when `AppConfig.appApiV1Login` is on. [role] is `student`, `parent` or
+  /// `teacher`; [identifier] is the Student ID or the account email.
+  ///
+  /// Contract: 200 `{success, data:{access_token, refresh_token, token_type,
+  /// expires_in, expires_at, refresh_expires_at, user:{id,name,role,role_id,
+  /// avatar_url,language,student_id?,grade?,email?,school_id?,...}}}`;
+  /// 401 same message for unknown user, wrong password and wrong role; 403
+  /// disabled account; 422 validation; 429 rate limit (10/min).
+  Future<LoginResult> loginWithAppApi({
+    required String role,
+    required String identifier,
+    required String password,
+  }) async {
+    assert(const {'student', 'parent', 'teacher'}.contains(role));
+    try {
+      final response = await AppServices.instance.apiClient.appV1.post(
+        '/auth/$role/login',
+        data: role == 'student'
+            ? {'student_id': identifier, 'password': password}
+            : {'identifier': identifier.trim(), 'password': password},
+        options: Options(
+          validateStatus: (_) => true,
+          extra: const {'noAuth': true},
+        ),
+      );
+
+      final body = response.data;
+      if (response.statusCode != 200 || body is! Map<String, dynamic>) {
+        final message = switch (response.statusCode) {
+          403 => 'This account is not active. Please contact support.',
+          429 => 'Too many attempts. Please wait a minute and try again.',
+          _ => _extractErrorMessage(body) ??
+              'Login failed. Please check your credentials.',
+        };
+        return LoginResult(success: false, message: message);
+      }
+
+      final data = (body['data'] as Map?)?.cast<String, dynamic>() ?? {};
+      final access = data['access_token'];
+      if (access is! String || access.isEmpty) {
+        return const LoginResult(
+          success: false,
+          message: 'Login response missing token.',
+        );
+      }
+      final user = (data['user'] as Map?)?.cast<String, dynamic>() ?? {};
+      final roleId = _extractRoleId(user);
+      final roleName = _extractRoleName(user);
+      if (!_isAllowedRole(roleId: roleId, roleName: roleName)) {
+        return const LoginResult(success: false, message: 'Unauthorized.');
+      }
+
+      await _tokens.save(AuthTokens(
+        accessToken: access,
+        refreshToken: data['refresh_token'] as String?,
+        accessExpiresAt: DateTime.tryParse('${data['expires_at']}'),
+        refreshExpiresAt: DateTime.tryParse('${data['refresh_expires_at']}'),
+      ));
+      final studentId = _extractStudentId(user);
+      if (studentId != null) {
+        await _secureStorage.write(key: _studentIdKey, value: studentId);
+      }
+      await _secureStorage.write(
+          key: _userIdKey, value: user['id']?.toString() ?? '');
+      if (roleId != null) {
+        await _secureStorage.write(key: _roleIdKey, value: roleId.toString());
+      }
+      if (roleName != null && roleName.isNotEmpty) {
+        await _secureStorage.write(key: _roleNameKey, value: roleName);
+      }
+      final avatar = user['avatar_url'];
+      await AppServices.instance.profile.update(
+        name: _extractUserName(user),
+        avatarUrl: avatar is String ? avatar : null,
+      );
+
+      return LoginResult(
+        success: true,
+        message: 'Login successful',
+        roleId: roleId,
+        roleName: roleName,
+        studentId: studentId,
+        name: _extractUserName(user),
+      );
+    } on DioException catch (e) {
+      return LoginResult(
+        success: false,
+        message: ErrorFeedback.userMessage(
+          e,
+          fallback: 'Could not connect to login server.',
+        ),
+      );
+    } catch (_) {
+      return const LoginResult(
+        success: false,
+        message: 'Unexpected login error. Please try again.',
+      );
     }
   }
 
@@ -398,37 +500,6 @@ class AuthService {
     return null;
   }
 
-  bool _hasMultipleLoginConflict(dynamic payload) {
-    if (payload is! Map<String, dynamic>) {
-      return false;
-    }
-
-    final multipleLogin =
-        payload['multipleLogin'] ??
-        payload['multiple_login'] ??
-        payload['multiple_login_error'];
-    if (multipleLogin is bool) {
-      return multipleLogin;
-    }
-
-    if (multipleLogin is String) {
-      return multipleLogin.toLowerCase() == 'true' || multipleLogin == '1';
-    }
-
-    if (multipleLogin is int) {
-      return multipleLogin == 1;
-    }
-
-    final message = payload['message'];
-    if (message is String) {
-      final normalized = message.toLowerCase();
-      return normalized.contains('already logged in') &&
-          normalized.contains('other device');
-    }
-
-    return false;
-  }
-
   int? _extractRoleId(Map<String, dynamic> user) {
     final roleRaw = user['role_id'] ?? user['roleId'];
     if (roleRaw is int) {
@@ -564,27 +635,16 @@ class AuthService {
     }
   }
 
-  Future<void> _clearRememberedLogin() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      for (final key in const [
-        'remember_me',
-        'saved_student_id',
-        'saved_password',
-        'saved_email',
-      ]) {
-        await prefs.remove(key);
-      }
-    } catch (_) {
-      // Ignore preferences cleanup failures so account deletion can continue.
-    }
+}
 
-    for (final key in const ['saved_student_id', 'saved_password']) {
-      try {
-        await _secureStorage.delete(key: key);
-      } catch (_) {
-        // Ignore cleanup failures so corrupted secure storage never blocks auth.
-      }
-    }
-  }
+/// Keeps the call style of the old FlutterSecureStorage field while using
+/// the shared [SecureKv].
+class _SessionKv {
+  const _SessionKv(this._kv);
+  final SecureKv _kv;
+
+  Future<String?> read({required String key}) => _kv.read(key);
+  Future<void> write({required String key, required String value}) =>
+      _kv.write(key, value);
+  Future<void> delete({required String key}) => _kv.delete(key);
 }

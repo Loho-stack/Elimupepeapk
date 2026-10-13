@@ -6,14 +6,13 @@ import 'package:elimupepe/core/theme/wave_clipper.dart';
 import 'package:elimupepe/core/widgets/elimu_button.dart';
 import 'package:elimupepe/core/utils/error_feedback.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elimupepe/core/widgets/elimu_text_field.dart';
 import 'package:elimupepe/features/home/dashboard_screen.dart';
 import 'package:elimupepe/core/services/analytics_service.dart';
 import 'package:elimupepe/core/theme/app_page_transitions.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:elimupepe/features/teacher/teacher_dashboard.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/features/settings/webview_content_screen.dart';
 import 'package:elimupepe/features/parental_control/parent_dashboard.dart';
 
@@ -30,7 +29,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _studentIdFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   bool _rememberMe = false;
   bool _isLoading = false;
@@ -45,39 +43,12 @@ class _LoginScreenState extends State<LoginScreen> {
     _loadSavedCredentials();
   }
 
+  /// "Remember me" fills in the Student ID only. Passwords are never saved.
   Future<void> _loadSavedCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final rememberMe = prefs.getBool('remember_me') ?? false;
-
-    String studentId = await _secureStorage.read(key: 'saved_student_id') ?? '';
-    if (studentId.isEmpty) {
-      studentId = prefs.getString('saved_student_id') ?? '';
-      if (studentId.isNotEmpty) {
-        await _secureStorage.write(key: 'saved_student_id', value: studentId);
-        await prefs.remove('saved_student_id');
-      }
-    }
-
-    String password = await _secureStorage.read(key: 'saved_password') ?? '';
-    if (password.isEmpty) {
-      password = prefs.getString('saved_password') ?? '';
-      if (password.isNotEmpty) {
-        await _secureStorage.write(key: 'saved_password', value: password);
-        await prefs.remove('saved_password');
-      }
-    }
-
-    final hasSavedCredentials = studentId.trim().isNotEmpty &&
-        password.isNotEmpty;
-    if (!hasSavedCredentials && !rememberMe) {
-      return;
-    }
-
-    if (mounted) {
-      _studentIdController.text = studentId.toUpperCase();
-      _passwordController.text = password;
-      setState(() => _rememberMe = hasSavedCredentials || rememberMe);
-    }
+    final studentId = await AppServices.instance.remembered.studentId();
+    if (studentId == null || !mounted) return;
+    _studentIdController.text = studentId;
+    setState(() => _rememberMe = true);
   }
 
   @override
@@ -139,11 +110,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!loginResult.success) {
         final reason = loginResult.message.trim();
+        // A fixed code, never the server message (it can echo user input).
         AnalyticsService.instance.logEvent(
           'login_failed',
-          parameters: {
-            'reason': reason.length > 80 ? reason.substring(0, 80) : reason,
-          },
+          parameters: {'reason': _failureCode(reason)},
         );
         if (mounted) {
           if (ErrorFeedback.isNetworkError(reason) ||
@@ -168,30 +138,12 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      // Save or clear credentials based on the "Remember Me" checkbox
-      final prefs = await SharedPreferences.getInstance();
+      // Remember me keeps the Student ID only, and only if opted in.
       if (_rememberMe) {
-        await prefs.setBool('remember_me', true);
-        await _secureStorage.write(
-          key: 'saved_student_id',
-          value: _studentIdController.text.trim().toUpperCase(),
-        );
-        await prefs.remove('saved_student_id');
-        await prefs.remove('saved_email');
-        // Securely store the password
-        await _secureStorage.write(
-          key: 'saved_password',
-          value: _passwordController.text,
-        );
-        // Clean up old insecure storage if it exists
-        await prefs.remove('saved_password');
+        await AppServices.instance.remembered
+            .remember(_studentIdController.text);
       } else {
-        await prefs.remove('remember_me');
-        await prefs.remove('saved_student_id');
-        await prefs.remove('saved_email');
-        await _secureStorage.delete(key: 'saved_student_id');
-        await _secureStorage.delete(key: 'saved_password');
-        await prefs.remove('saved_password');
+        await AppServices.instance.remembered.forget();
       }
 
       await AnalyticsService.instance.logLogin(method: 'student_id');
@@ -203,18 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
         DeviceOrientation.landscapeRight,
       ]);
 
-      final normalizedStudentId = _studentIdController.text
-          .trim()
-          .toUpperCase();
-      final fallbackName = normalizedStudentId.isNotEmpty
-          ? normalizedStudentId
-          : 'Student';
-      await prefs.setString('user_name', loginResult.name ?? fallbackName);
-      await prefs.setString('user_email', '');
-      await prefs.setString(
-        'loho_id',
-        (loginResult.studentId ?? normalizedStudentId).toUpperCase(),
-      );
+      // Display name and avatar live in secure storage (UserProfileStore);
+      // the Student ID is already in secure storage from the login call.
+      await AppServices.instance.profile.update(name: loginResult.name);
 
       if (mounted) {
         Navigator.of(
@@ -234,6 +177,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       AnalyticsService.instance.logEvent('login_error');
     }
+  }
+
+  static String _failureCode(String message) {
+    if (ErrorFeedback.isNetworkError(message)) return 'network';
+    if (ErrorFeedback.isServerError(message)) return 'server';
+    return 'rejected';
   }
 
   Widget _routeForRole(LoginResult loginResult) {
@@ -505,7 +454,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(width: 8),
               const Text(
-                'Remember Me',
+                'Remember my Student ID',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,

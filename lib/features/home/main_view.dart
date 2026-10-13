@@ -1,3 +1,4 @@
+import 'package:elimupepe/app/app_services.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:elimupepe/models/menu_item.dart';
@@ -171,9 +172,10 @@ class _MainViewState extends State<MainView> {
   Future<void> _fetchUserProfile() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final profile = await AppServices.instance.profile.read();
       if (mounted) {
         setState(() {
-          _userName = prefs.getString('user_name') ?? _userName;
+          _userName = profile.name ?? _userName;
           _grade = prefs.getString('grade') ?? _grade;
         });
       }

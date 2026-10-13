@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:elimupepe/models/ebook.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
@@ -43,7 +44,7 @@ class FirestoreService {
         );
       }).toList();
     } catch (e) {
-      print('Error fetching cloud books: $e');
+      if (kDebugMode) debugPrint('Error fetching cloud books');
       return [];
     }
   }

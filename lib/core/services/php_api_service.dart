@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/models/ebook.dart';
@@ -56,7 +57,7 @@ class PhpApiService {
       }
       return [];
     } catch (e) {
-      print('Error fetching cloud books: $e');
+      if (kDebugMode) debugPrint('Error fetching cloud books');
       return [];
     }
   }
@@ -78,7 +79,7 @@ class PhpApiService {
       }
       return [];
     } catch (e) {
-      print('Error fetching books by grade: $e');
+      if (kDebugMode) debugPrint('Error fetching books by grade');
       return [];
     }
   }
@@ -101,7 +102,7 @@ class PhpApiService {
       }
       return [];
     } catch (e) {
-      print('Error fetching books by category: $e');
+      if (kDebugMode) debugPrint('Error fetching books by category');
       return [];
     }
   }
@@ -123,7 +124,7 @@ class PhpApiService {
       }
       return [];
     } catch (e) {
-      print('Error searching books: $e');
+      if (kDebugMode) debugPrint('Error searching books');
       return [];
     }
   }
@@ -133,7 +134,7 @@ class PhpApiService {
       final response = await _dio.delete('$_baseUrl/books/$bookId');
       return response.statusCode == 200 || response.statusCode == 204;
     } catch (e) {
-      print('Error deleting book: $e');
+      if (kDebugMode) debugPrint('Error deleting book');
       return false;
     }
   }
@@ -149,7 +150,7 @@ class PhpApiService {
       }
       return [];
     } catch (e) {
-      print('Error fetching leaderboard: $e');
+      if (kDebugMode) debugPrint('Error fetching leaderboard');
       return [];
     }
   }
@@ -170,7 +171,7 @@ class PhpApiService {
         };
       }
     } catch (e) {
-      print('Error fetching app version: $e');
+      if (kDebugMode) debugPrint('Error fetching app version');
     }
     return {};
   }

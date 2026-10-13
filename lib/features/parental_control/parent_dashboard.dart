@@ -1,6 +1,6 @@
+import 'package:elimupepe/app/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:elimupepe/core/services/parent_api_service.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
@@ -37,8 +37,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
   }
 
   Future<void> _loadUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString('user_name');
+    final name = (await AppServices.instance.profile.read()).name;
     if (!mounted) return;
     setState(() {
       _displayName = (name != null && name.trim().isNotEmpty) ? name : 'Parent';

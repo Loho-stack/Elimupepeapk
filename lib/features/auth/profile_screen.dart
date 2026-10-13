@@ -1,3 +1,4 @@
+import 'package:elimupepe/app/app_services.dart';
 import 'welcome_screen.dart';
 import 'package:flutter/material.dart';
 import '../parental_control/parental_gate.dart';
@@ -22,13 +23,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  static const String _avatarCacheKeyPref = 'profile_image_cache_key';
-  static const Set<String> _rememberedLoginKeys = {
-    'remember_me',
-    'saved_student_id',
-    'saved_password',
-    'saved_email',
-  };
   String _userName = 'Loading...';
   String _lohoId = '...';
   String _grade = 'Grade ...';
@@ -81,14 +75,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserData() async {
     // 1. Immediately load whatever cached info we have locally
     final prefs = await SharedPreferences.getInstance();
+    final services = AppServices.instance;
+    final profile = await services.profile.read();
+    final studentId = await AuthService.instance.getSavedStudentId();
+    if (!mounted) return;
     setState(() {
-      _userName = prefs.getString('user_name') ?? 'Alex Learner';
-      _lohoId = prefs.getString('loho_id') ?? 'LOHO-12345';
+      _userName = profile.name ?? 'Learner';
+      _lohoId = studentId ?? '';
       _grade = prefs.getString('grade') ?? 'Grade ...';
       _profileImageUrl =
           ImageUrlResolver.withCacheBuster(
-            prefs.getString('profile_image_url') ?? '',
-            cacheKey: prefs.getString(_avatarCacheKeyPref),
+            profile.avatarUrl ?? '',
+            cacheKey: services.profile.avatarCacheKey,
           ) ??
           '';
       _isSubscribed = prefs.getBool('is_subscribed') ?? false;
@@ -143,20 +141,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
 
       // Update local storage so the next immediate load displays the correct fresh data
-      await prefs.setString('user_name', _userName);
-      await prefs.setString('loho_id', _lohoId);
+      await services.profile.update(name: _userName);
       await prefs.setString('grade', _grade);
       final avatarCacheKey =
-          prefs.getString(_avatarCacheKeyPref) ??
+          services.profile.avatarCacheKey ??
           DateTime.now().millisecondsSinceEpoch.toString();
       final refreshedAvatar = ImageUrlResolver.withCacheBuster(
         _profileImageUrl,
         cacheKey: avatarCacheKey,
       );
       _profileImageUrl = refreshedAvatar ?? _profileImageUrl;
-      await prefs.setString('profile_image_url', _profileImageUrl);
-      await prefs.setString('user_avatar', _profileImageUrl);
-      await prefs.setString(_avatarCacheKeyPref, avatarCacheKey);
+      await services.profile.update(avatarUrl: _profileImageUrl);
+      services.profile.avatarCacheKey = avatarCacheKey;
       await prefs.setString('points', _points);
     }
 
@@ -308,16 +304,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return null;
   }
 
-  Future<void> _clearLocalSessionPreservingLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    for (final key in prefs.getKeys()) {
-      if (_rememberedLoginKeys.contains(key)) {
-        continue;
-      }
-      await prefs.remove(key);
-    }
-  }
-
   Future<void> _confirmLogout(BuildContext context) async {
     final bool? shouldLogout = await showDialog<bool>(
       context: context,
@@ -347,11 +333,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (shouldLogout == true && context.mounted) {
-      // 1. Clear tokens securely
+      // Clears tokens, profile, preferences and webview data; keeps only
+      // the Student ID if the learner chose to be remembered.
       await AuthService.instance.logout();
-
-      // 2. Clear locally cached profile information but keep remembered login.
-      await _clearLocalSessionPreservingLogin();
 
       if (!context.mounted) return;
       // 3. Navigate back to the pre-login welcome flow
@@ -402,10 +386,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
 
       final success = await AuthService.instance.deleteAccount();
-
-      // Clear locally cached profile information anyway
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
 
       if (!context.mounted) return;
 

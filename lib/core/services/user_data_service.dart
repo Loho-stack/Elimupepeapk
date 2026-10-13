@@ -17,7 +17,7 @@ class UserDataService {
       return await LearnerDashboardApiService.instance.fetchProfile();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching user profile: $e');
+        if (kDebugMode) debugPrint('Error fetching user profile');
       }
       return null;
     }
@@ -36,7 +36,7 @@ class UserDataService {
           .toList();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching notifications: $e');
+        if (kDebugMode) debugPrint('Error fetching notifications');
       }
       return [];
     }
@@ -55,7 +55,7 @@ class UserDataService {
       return false;
     } catch (e) {
       if (kDebugMode) {
-        print('Error checking subscription: $e');
+        if (kDebugMode) debugPrint('Error checking subscription');
       }
       return false;
     }
@@ -66,7 +66,7 @@ class UserDataService {
       return await LearnerDashboardApiService.instance.fetchGrades();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching grades: $e');
+        if (kDebugMode) debugPrint('Error fetching grades');
       }
       return null;
     }
@@ -82,7 +82,7 @@ class UserDataService {
       return await LearnerDashboardApiService.instance.fetchBadges();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching badges: $e');
+        if (kDebugMode) debugPrint('Error fetching badges');
       }
     }
     return null;
@@ -93,7 +93,7 @@ class UserDataService {
       return await LearnerDashboardApiService.instance.fetchWallet();
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching wallet: $e');
+        if (kDebugMode) debugPrint('Error fetching wallet');
       }
     }
     return null;
@@ -107,7 +107,7 @@ class UserDataService {
       return response != null && response['success'] == true;
     } catch (e) {
       if (kDebugMode) {
-        print('Error updating profile: $e');
+        if (kDebugMode) debugPrint('Error updating profile');
       }
       return false;
     }
@@ -120,7 +120,7 @@ class UserDataService {
       return response != null && response['success'] == true;
     } catch (e) {
       if (kDebugMode) {
-        print('Error marking notifications as read: $e');
+        if (kDebugMode) debugPrint('Error marking notifications as read');
       }
       return false;
     }

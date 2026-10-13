@@ -1,6 +1,6 @@
+import 'package:elimupepe/app/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -19,8 +19,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   }
 
   Future<void> _loadUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString('user_name');
+    final name = (await AppServices.instance.profile.read()).name;
     if (!mounted) return;
     setState(() {
       _displayName = (name != null && name.trim().isNotEmpty)

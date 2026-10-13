@@ -506,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen>
     // Log download start
     AnalyticsService.instance.logEvent(
       'book_download_start',
-      parameters: {'book_id': cloudBook.id, 'book_title': cloudBook.title},
+      parameters: {'book_id': cloudBook.id},
     );
 
     if (mounted) {
@@ -537,9 +537,6 @@ class _HomeScreenState extends State<HomeScreen>
             'book_download_success',
             parameters: {
               'book_id': cloudBook.id,
-              'book_title': cloudBook.title,
-              'book_author': cloudBook.author,
-              'book_grade': cloudBook.grade,
               'book_category': cloudBook.category,
             },
           );
@@ -557,10 +554,7 @@ class _HomeScreenState extends State<HomeScreen>
         } else {
           AnalyticsService.instance.logEvent(
             'book_download_failed',
-            parameters: {
-              'book_id': cloudBook.id,
-              'book_title': cloudBook.title,
-            },
+            parameters: {'book_id': cloudBook.id},
           );
           await _showActionError(
             'Please check your network connection and try again.',
@@ -575,9 +569,7 @@ class _HomeScreenState extends State<HomeScreen>
           'book_download_error',
           parameters: {
             'book_id': cloudBook.id,
-            'error': e.toString().length > 100
-                ? e.toString().substring(0, 100)
-                : e.toString(),
+            'error_type': e.runtimeType.toString(),
           },
         );
         setState(() {

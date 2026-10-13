@@ -5,11 +5,17 @@ class WebViewSessionService {
 
   static final WebViewCookieManager _cookieManager = WebViewCookieManager();
 
+  /// Removes everything a webview kept for the signed-in learner: cookies
+  /// (including the SSO session), HTTP cache and web storage (localStorage,
+  /// sessionStorage, IndexedDB). Failures are ignored so logout completes.
   static Future<void> clear() async {
     try {
       await _cookieManager.clearCookies();
-    } catch (_) {
-      // Ignore WebView cleanup failures so logout still completes.
-    }
+    } catch (_) {}
+    try {
+      final controller = WebViewController();
+      await controller.clearCache();
+      await controller.clearLocalStorage();
+    } catch (_) {}
   }
 }

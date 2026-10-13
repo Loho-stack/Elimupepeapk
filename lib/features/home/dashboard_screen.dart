@@ -39,7 +39,6 @@ class GamifiedDashboardScreen extends StatefulWidget {
 }
 
 class _GamifiedDashboardScreenState extends State<GamifiedDashboardScreen> {
-  static const String _avatarCacheKeyPref = 'profile_image_cache_key';
   int _selectedIndex = 0; // 0: Home, 1: Library, 2: Quest, 3: Menu, 4: Profile
   final GlobalKey<ScaffoldState> _homeScaffoldKey = GlobalKey<ScaffoldState>();
   final List<Widget?> _tabCache = List<Widget?>.filled(5, null);
@@ -65,16 +64,16 @@ class _GamifiedDashboardScreenState extends State<GamifiedDashboardScreen> {
 
   Future<void> _loadLastSessionState() async {
     final prefs = await SharedPreferences.getInstance();
+    final profile = await AppServices.instance.profile.read();
     if (mounted) {
       setState(() {
         _selectedIndex = widget.restoreLastTab
             ? prefs.getInt('last_dashboard_tab_index') ?? widget.initialIndex
             : widget.initialIndex;
-        _userName = prefs.getString('user_name') ?? 'Learner';
+        _userName = profile.name ?? 'Learner';
         _userAvatar = ImageUrlResolver.withCacheBuster(
-          prefs.getString('profile_image_url') ??
-              prefs.getString('user_avatar'),
-          cacheKey: prefs.getString(_avatarCacheKeyPref),
+          profile.avatarUrl,
+          cacheKey: AppServices.instance.profile.avatarCacheKey,
         );
       });
     }

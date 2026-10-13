@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:elimupepe/core/services/analytics_service.dart';
@@ -28,17 +26,9 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
   final _passwordController = TextEditingController();
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   bool _isLoading = false;
   bool _hasAgreed = false;
-  bool _rememberMe = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedCredentials();
-  }
 
   @override
   void dispose() {
@@ -49,70 +39,64 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
     super.dispose();
   }
 
-  Future<void> _loadSavedCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final rememberMe = prefs.getBool('parent_remember_me') ?? false;
-    if (!rememberMe) return;
-    final email = await _secureStorage.read(key: 'parent_saved_email') ?? '';
-    final pwd = await _secureStorage.read(key: 'parent_saved_password') ?? '';
-    if (!mounted) return;
-    if (email.isNotEmpty) _emailController.text = email;
-    if (pwd.isNotEmpty) _passwordController.text = pwd;
-    setState(() => _rememberMe = email.isNotEmpty && pwd.isNotEmpty);
-  }
-
   Future<void> _handleLogin() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (!_hasAgreed) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Please agree to the Terms & Conditions to continue.',
-          ),
+          content: Text('Please agree to the Terms & Conditions to continue.'),
         ),
       );
       return;
     }
 
     setState(() => _isLoading = true);
-    AnalyticsService.instance.logEvent(
-      'parent_login_attempt',
-      parameters: {'remember_me': _rememberMe ? 1 : 0},
-    );
+    AnalyticsService.instance.logEvent('parent_login_attempt');
 
     final trace = FirebasePerformance.instance.newTrace('parent_login');
     await trace.start();
     bool success = false;
     String? message;
     try {
-      final response = await AppServices.instance.apiClient.api.post(
-        '/v1/auth/login',
-        data: {
-          'email': _emailController.text.trim(),
-          'password': _passwordController.text,
-          'role': 'parent',
-        },
-        options: Options(
-          validateStatus: (_) => true,
-          extra: const {'noAuth': true},
-        ),
-      );
-
-      if (response.statusCode != 200) {
-        message = _extractMessage(response.data) ??
-            'Login failed. Please check your credentials.';
+      if (AppServices.instance.config.appApiV1Login) {
+        final result = await AuthService.instance.loginWithAppApi(
+          role: 'parent',
+          identifier: _emailController.text,
+          password: _passwordController.text,
+        );
+        success = result.success;
+        message = result.message;
       } else {
-        final data = response.data;
-        final token = _extractToken(data);
-        if (token == null || token.isEmpty) {
-          message = 'Login response missing token.';
+        final response = await AppServices.instance.apiClient.api.post(
+          '/v1/auth/login',
+          data: {
+            'email': _emailController.text.trim(),
+            'password': _passwordController.text,
+            'role': 'parent',
+          },
+          options: Options(
+            validateStatus: (_) => true,
+            extra: const {'noAuth': true},
+          ),
+        );
+
+        if (response.statusCode != 200) {
+          message =
+              _extractMessage(response.data) ??
+              'Login failed. Please check your credentials.';
         } else {
-          final user = _extractUser(data);
-          await AuthService.instance.persistParentSession(
-            token: token,
-            user: user,
-          );
-          success = true;
+          final data = response.data;
+          final token = _extractToken(data);
+          if (token == null || token.isEmpty) {
+            message = 'Login response missing token.';
+          } else {
+            final user = _extractUser(data);
+            await AuthService.instance.persistParentSession(
+              token: token,
+              user: user,
+            );
+            success = true;
+          }
         }
       }
     } catch (e) {
@@ -129,19 +113,14 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
 
     if (success) {
       AnalyticsService.instance.logLogin(method: 'parent_email');
-      await _persistCredentials();
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        AppPageTransitions.route(const ParentDashboard()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(AppPageTransitions.route(const ParentDashboard()));
     } else {
       AnalyticsService.instance.logEvent(
         'parent_login_failed',
-        parameters: {
-          'reason': (message ?? '').length > 80
-              ? (message ?? '').substring(0, 80)
-              : (message ?? ''),
-        },
+        parameters: {'reason': 'rejected'},
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -149,25 +128,6 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
           backgroundColor: Colors.red.shade700,
         ),
       );
-    }
-  }
-
-  Future<void> _persistCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (_rememberMe) {
-      await prefs.setBool('parent_remember_me', true);
-      await _secureStorage.write(
-        key: 'parent_saved_email',
-        value: _emailController.text.trim(),
-      );
-      await _secureStorage.write(
-        key: 'parent_saved_password',
-        value: _passwordController.text,
-      );
-    } else {
-      await prefs.remove('parent_remember_me');
-      await _secureStorage.delete(key: 'parent_saved_email');
-      await _secureStorage.delete(key: 'parent_saved_password');
     }
   }
 
@@ -283,18 +243,19 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
                                   focusNode: _emailFocus,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
-                                  onFieldSubmitted: (_) => _emailFocus.unfocus(),
+                                  onFieldSubmitted: (_) =>
+                                      _emailFocus.unfocus(),
                                   validator: (value) {
                                     final text = (value ?? '').trim();
                                     if (text.isEmpty) {
                                       return 'Please enter your email or phone';
                                     }
-                                    final isEmail =
-                                        RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-                                            .hasMatch(text);
-                                    final isPhone =
-                                        RegExp(r'^\+?[0-9]{7,15}$')
-                                            .hasMatch(text);
+                                    final isEmail = RegExp(
+                                      r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                                    ).hasMatch(text);
+                                    final isPhone = RegExp(
+                                      r'^\+?[0-9]{7,15}$',
+                                    ).hasMatch(text);
                                     if (!isEmail && !isPhone) {
                                       return 'Enter a valid email or phone number';
                                     }
@@ -322,8 +283,6 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 14),
-                          _rememberMeRow(),
-                          const SizedBox(height: 8),
                           _agreementRow(),
                           const SizedBox(height: 24),
                           ElimuButton(
@@ -361,43 +320,13 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
     );
   }
 
-  Widget _rememberMeRow() {
-    return GestureDetector(
-      onTap: () => setState(() => _rememberMe = !_rememberMe),
-      child: Row(
-        children: [
-          Theme(
-            data: Theme.of(context)
-                .copyWith(unselectedWidgetColor: Colors.white70),
-            child: Checkbox(
-              value: _rememberMe,
-              onChanged: (v) => setState(() => _rememberMe = v ?? false),
-              activeColor: Colors.white,
-              checkColor: AppColors.primaryBlue,
-              side: const BorderSide(color: Colors.white, width: 1.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          const Text(
-            'Remember Me',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _agreementRow() {
     return Row(
       children: [
         Theme(
-          data: Theme.of(context)
-              .copyWith(unselectedWidgetColor: Colors.white70),
+          data: Theme.of(
+            context,
+          ).copyWith(unselectedWidgetColor: Colors.white70),
           child: Checkbox(
             value: _hasAgreed,
             onChanged: (v) => setState(() => _hasAgreed = v ?? false),
