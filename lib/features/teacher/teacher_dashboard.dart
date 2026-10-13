@@ -136,12 +136,12 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withOpacity(0.12),
+            color: AppColors.primaryBlue.withValues(alpha: 0.12),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
         ],
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.12)),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
@@ -149,7 +149,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             height: 48,
             width: 48,
             decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withOpacity(0.12),
+              color: AppColors.primaryBlue.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: AppColors.primaryBlue),
@@ -177,7 +177,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   }) {
     return ListTile(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      tileColor: AppColors.primaryBlue.withOpacity(0.08),
+      tileColor: AppColors.primaryBlue.withValues(alpha: 0.08),
       leading: Icon(icon, color: AppColors.primaryBlue),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
       subtitle: Text(
@@ -203,13 +203,13 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.1)),
+        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 22,
-            backgroundColor: AppColors.primaryBlue.withOpacity(0.12),
+            backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
             child: Icon(icon, color: AppColors.primaryBlue),
           ),
           const SizedBox(width: 12),
@@ -263,7 +263,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withOpacity(0.2),
+            color: AppColors.primaryBlue.withValues(alpha: 0.2),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -299,7 +299,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Text(
@@ -317,7 +317,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           if (isTablet) const SizedBox(width: 16),
           CircleAvatar(
             radius: isTablet ? 32 : 26,
-            backgroundColor: Colors.white.withOpacity(0.2),
+            backgroundColor: Colors.white.withValues(alpha: 0.2),
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : 'T',
               style: const TextStyle(

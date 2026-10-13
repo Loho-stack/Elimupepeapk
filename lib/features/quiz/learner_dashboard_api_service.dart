@@ -206,11 +206,11 @@ class LearnerDashboardApiService {
 
     try {
       if (menuId == 'interactive_books') {
-        return _fetchInteractiveBooks(token);
+        return await _fetchInteractiveBooks(token);
       }
 
       if (menuId == 'non_interactive_books') {
-        return _fetchNonInteractiveBooks(token);
+        return await _fetchNonInteractiveBooks(token);
       }
 
       for (final endpoint in endpoints) {

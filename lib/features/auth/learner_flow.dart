@@ -67,7 +67,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
             borderRadius: AppStyles.radiusPill,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 5,
                 offset: const Offset(0, 2),
               ),
@@ -92,7 +92,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
               child: LinearProgressIndicator(
                 minHeight: 6,
                 value: _currentStep / 6,
-                backgroundColor: AppColors.white.withOpacity(0.5),
+                backgroundColor: AppColors.white.withValues(alpha: 0.5),
                 color: AppColors.brandGreen,
               ),
             ),
@@ -116,8 +116,8 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      AppColors.brandGreen.withOpacity(0.78),
-                      AppColors.lightGreen.withOpacity(0.88),
+                      AppColors.brandGreen.withValues(alpha: 0.78),
+                      AppColors.lightGreen.withValues(alpha: 0.88),
                     ],
                   ),
                 ),
@@ -130,7 +130,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
                 width: 180,
                 height: 180,
                 decoration: BoxDecoration(
-                  color: AppColors.lightGreen.withOpacity(0.25),
+                  color: AppColors.lightGreen.withValues(alpha: 0.25),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -142,7 +142,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
                 width: 220,
                 height: 220,
                 decoration: BoxDecoration(
-                  color: AppColors.secondaryBlue.withOpacity(0.12),
+                  color: AppColors.secondaryBlue.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -205,7 +205,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
                   'Select how you want to continue',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: _isCompact(context) ? 13 : 15,
                   ),
                 ),
@@ -254,23 +254,23 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
       duration: const Duration(milliseconds: 220),
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isSelected ? AppColors.brandGreen : Colors.white.withOpacity(0.6),
+          color: isSelected ? AppColors.brandGreen : Colors.white.withValues(alpha: 0.6),
           width: isSelected ? 2 : 1.2,
         ),
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: AppColors.brandGreen.withOpacity(0.25),
+                  color: AppColors.brandGreen.withValues(alpha: 0.25),
                   blurRadius: 24,
                   offset: const Offset(0, 10),
                 ),
               ]
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 18,
                   offset: const Offset(0, 8),
                 ),
@@ -289,7 +289,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
                     Container(
                       padding: EdgeInsets.all(isCompact ? 10 : 12),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.lightGreen.withOpacity(0.2) : AppColors.surfaceGray,
+                        color: isSelected ? AppColors.lightGreen.withValues(alpha: 0.2) : AppColors.surfaceGray,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(icon, color: isSelected ? AppColors.brandGreen : AppColors.textMuted, size: isCompact ? 24 : 28),
@@ -312,7 +312,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
                             Text(
                               subtitle,
                               style: TextStyle(
-                                color: AppColors.textMuted.withOpacity(0.9),
+                                color: AppColors.textMuted.withValues(alpha: 0.9),
                                 fontSize: isCompact ? 12 : 13,
                               ),
                             ),
@@ -324,7 +324,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: AppColors.lightGreen.withOpacity(0.2),
+                          color: AppColors.lightGreen.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.check_circle, color: AppColors.brandGreen, size: 20),
@@ -374,7 +374,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
           elevation: 0,
           backgroundColor: isPrimary ? AppColors.brandGreen : AppColors.white,
           foregroundColor: isPrimary ? AppColors.white : AppColors.primaryBlue,
-          side: isPrimary ? null : BorderSide(color: AppColors.primaryBlue.withOpacity(0.3)),
+          side: isPrimary ? null : BorderSide(color: AppColors.primaryBlue.withValues(alpha: 0.3)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
         icon: Icon(icon, size: isCompact ? 18 : 20),
@@ -397,15 +397,15 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isPrimary ? AppColors.brandGreen.withOpacity(0.35) : Colors.white.withOpacity(0.6),
+          color: isPrimary ? AppColors.brandGreen.withValues(alpha: 0.35) : Colors.white.withValues(alpha: 0.6),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -416,7 +416,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: isPrimary ? AppColors.lightGreen.withOpacity(0.2) : AppColors.surfaceGray,
+            color: isPrimary ? AppColors.lightGreen.withValues(alpha: 0.2) : AppColors.surfaceGray,
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -473,7 +473,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
             width: double.infinity,
             padding: EdgeInsets.all(isCompact ? 18 : 22),
             decoration: BoxDecoration(
-              color: AppColors.white.withOpacity(0.95),
+              color: AppColors.white.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(18),
               boxShadow: AppStyles.playfulShadow,
             ),
@@ -482,7 +482,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.lightGreen.withOpacity(0.2),
+                    color: AppColors.lightGreen.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.qr_code_scanner_rounded, size: 34, color: AppColors.brandGreen),
@@ -512,50 +512,6 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String hint, IconData prefixIcon, IconData? suffixIcon, Function(String) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textMain)),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: AppStyles.radiusMedium,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: const TextStyle(color: AppColors.textMuted),
-              prefixIcon: Icon(prefixIcon, color: AppColors.textMuted),
-              suffixIcon: suffixIcon != null ? IconButton(icon: Icon(suffixIcon, color: AppColors.brandGreen), onPressed: () {}) : null,
-              border: OutlineInputBorder(borderRadius: AppStyles.radiusMedium, borderSide: BorderSide.none),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: AppStyles.radiusMedium,
-                borderSide: BorderSide(color: AppColors.lightGreen.withOpacity(0.25)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: AppStyles.radiusMedium,
-                borderSide: const BorderSide(color: AppColors.brandGreen, width: 1.6),
-              ),
-              filled: true,
-              fillColor: AppColors.white,
-              contentPadding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            onChanged: onChanged,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStep3SchoolConfirmation() {
     final isCompact = _isCompact(context);
     return SingleChildScrollView(
@@ -575,7 +531,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
               color: AppColors.white,
               borderRadius: AppStyles.radiusLarge,
               boxShadow: AppStyles.playfulShadow,
-              border: Border.all(color: AppColors.lightGreen.withOpacity(0.3), width: 2),
+              border: Border.all(color: AppColors.lightGreen.withValues(alpha: 0.3), width: 2),
             ),
             child: Column(
               children: [
@@ -640,7 +596,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
           width: isCompact ? 84 : 100,
           height: isCompact ? 84 : 100,
           decoration: BoxDecoration(
-            color: AppColors.lightGreen.withOpacity(0.2),
+            color: AppColors.lightGreen.withValues(alpha: 0.2),
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.brandGreen, width: 3),
           ),
@@ -732,7 +688,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
       color: AppColors.white,
       borderRadius: AppStyles.radiusLarge,
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       child: InkWell(
         onTap: onTap,
         borderRadius: AppStyles.radiusLarge,
@@ -792,7 +748,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
               Container(
                 width: isCompact ? 56 : 70,
                 height: isCompact ? 56 : 70,
-                decoration: BoxDecoration(color: AppColors.secondaryBlue.withOpacity(0.2), borderRadius: AppStyles.radiusMedium),
+                decoration: BoxDecoration(color: AppColors.secondaryBlue.withValues(alpha: 0.2), borderRadius: AppStyles.radiusMedium),
                 child: Icon(Icons.menu_book, color: AppColors.primaryBlue, size: isCompact ? 26 : 32),
               ),
               const SizedBox(width: 16),
@@ -832,7 +788,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
         ),
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: AppColors.lightGreen.withOpacity(0.1), borderRadius: AppStyles.radiusMedium),
+          decoration: BoxDecoration(color: AppColors.lightGreen.withValues(alpha: 0.1), borderRadius: AppStyles.radiusMedium),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -863,7 +819,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
         contentPadding: EdgeInsets.symmetric(horizontal: isCompact ? 12 : 16, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: color.withOpacity(0.2), shape: BoxShape.circle),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.2), shape: BoxShape.circle),
           child: Icon(icon, color: color),
         ),
         title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isCompact ? 14 : 16)),
@@ -969,7 +925,7 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: bgColor.withOpacity(0.35), blurRadius: 18, offset: const Offset(0, 8)),
+          BoxShadow(color: bgColor.withValues(alpha: 0.35), blurRadius: 18, offset: const Offset(0, 8)),
         ],
       ),
       child: ElevatedButton(
@@ -1012,42 +968,4 @@ class _LearnerFlowScreenState extends State<LearnerFlowScreen> {
     );
   }
 
-  Widget _offlineSetupOption() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: AppStyles.radiusMedium,
-        border: Border.all(color: AppColors.accentOrange.withOpacity(0.5), width: 2),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppColors.accentOrange.withOpacity(0.2), shape: BoxShape.circle),
-            child: const Icon(Icons.wifi_off, color: AppColors.accentOrange),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('No internet?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textMain)),
-                const SizedBox(height: 4),
-                const Text('You can set up offline and sync later.', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
-                const SizedBox(height: 8),
-                InkWell(
-                  onTap: _nextStep,
-                  child: const Text(
-                    'Continue offline',
-                    style: TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

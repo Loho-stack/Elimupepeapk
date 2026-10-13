@@ -316,7 +316,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _children.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final child = _children[index];
           return InkWell(

@@ -435,7 +435,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.brandGreen.withOpacity(0.1),
+                        color: AppColors.brandGreen.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -472,7 +472,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(cardRadius),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.brandGreen.withOpacity(0.3),
+                      color: AppColors.brandGreen.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
@@ -483,7 +483,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -652,7 +652,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.brandGreen.withOpacity(0.1),
+                    color: AppColors.brandGreen.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -796,7 +796,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(compact ? 16 : 20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -837,7 +837,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Container(
           padding: EdgeInsets.all(compact ? 12 : 16),
           decoration: BoxDecoration(
-            color: color.withOpacity(label == 'Locked' ? 0.05 : 0.15),
+            color: color.withValues(alpha: label == 'Locked' ? 0.05 : 0.15),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: compact ? 32 : 40),
@@ -868,11 +868,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isUnread ? AppColors.lightGreen.withOpacity(0.05) : Colors.white,
+        color: isUnread ? AppColors.lightGreen.withValues(alpha: 0.05) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isUnread
-              ? AppColors.lightGreen.withOpacity(0.3)
+              ? AppColors.lightGreen.withValues(alpha: 0.3)
               : Colors.grey.shade200,
         ),
       ),
@@ -880,7 +880,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           CircleAvatar(
             backgroundColor: isUnread
-                ? AppColors.lightGreen.withOpacity(0.2)
+                ? AppColors.lightGreen.withValues(alpha: 0.2)
                 : const Color(0xFFF0F8FF),
             backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
                 ? NetworkImage(avatarUrl)

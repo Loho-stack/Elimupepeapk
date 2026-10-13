@@ -69,7 +69,7 @@ class _LinkedChildrenScreenState extends State<LinkedChildrenScreen> {
           : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: _children.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final child = _children[index];
                 return Container(

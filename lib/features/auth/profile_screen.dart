@@ -374,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
 
-      if (!mounted) return;
+      if (!context.mounted) return;
 
       // Navigate back to the pre-login welcome flow
       context.leaveSession();

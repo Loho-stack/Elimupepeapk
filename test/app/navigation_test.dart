@@ -320,8 +320,7 @@ void main() {
     late List<MethodCall> platformCalls;
 
     GoRouter router() {
-      final page = (String label) => (BuildContext c, GoRouterState s) =>
-          Center(child: Text('page $label'));
+      Widget page(String label) => Center(child: Text('page $label'));
       return GoRouter(
         navigatorKey: nav,
         initialLocation: '/student/home',
@@ -336,7 +335,7 @@ void main() {
                 ('/student/library', 'library'),
               ])
                 StatefulShellBranch(routes: [
-                  GoRoute(path: path, builder: (c, s) => page(label)(c, s)),
+                  GoRoute(path: path, builder: (c, s) => page(label)),
                 ]),
             ],
           ),

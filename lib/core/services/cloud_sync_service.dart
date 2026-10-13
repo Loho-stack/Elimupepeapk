@@ -270,7 +270,7 @@ class CloudSyncService {
       }
 
       final book = localBooks[bookIndex];
-      return _deleteBookRecord(book);
+      return await _deleteBookRecord(book);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Error deleting book: $e');

@@ -79,19 +79,44 @@ flutter pub get
 2. Run on device/emulator:
 
 ```bash
-flutter run
+flutter run --flavor staging --dart-define=ENV=staging
 ```
+
+The app has two Android flavours, `prod` and `staging`, which install side by side. Every
+`flutter run` and `flutter build` needs `--flavor <name> --dart-define=ENV=<name>`; the flavour and
+`ENV` must match or the app refuses to start. See [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) for
+environments, feature flags for the Phase 2A API, the staging install steps and build requirements
+(JDK 17 and about 4 GB of free memory for Gradle).
 
 ## Build APK
 
-Release build:
+Release build (production):
 
 ```bash
-flutter build apk --release
+flutter build apk --release --flavor prod --dart-define=ENV=prod
 ```
 
 Output:
-- `build/app/outputs/flutter-apk/app-release.apk`
+- `build/app/outputs/flutter-apk/app-prod-release.apk`
+
+Staging debug build for testers:
+
+```bash
+flutter build apk --debug --flavor staging --dart-define=ENV=staging
+```
+
+Output:
+- `build/app/outputs/flutter-apk/app-staging-debug.apk`
+
+## Tests
+
+```bash
+flutter analyze
+flutter test
+```
+
+`test/design/goldens/` holds golden images at 360x780 dp, generated on Windows. Regenerate with
+`flutter test --update-goldens test/design/goldens_test.dart` after an intended visual change.
 
 ## Access Model
 

@@ -41,7 +41,7 @@ class AppStyles {
   // Gamified Box Shadows
   static final List<BoxShadow> playfulShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.08),
+      color: Colors.black.withValues(alpha: 0.08),
       blurRadius: 10,
       offset: const Offset(0, 6),
       spreadRadius: 0,
@@ -50,7 +50,7 @@ class AppStyles {
 
   static final List<BoxShadow> buttonShadow = [
     BoxShadow(
-      color: Colors.black.withOpacity(0.15),
+      color: Colors.black.withValues(alpha: 0.15),
       blurRadius: 0,
       offset: const Offset(0, 4), // Chunky bottom shadow
     ),

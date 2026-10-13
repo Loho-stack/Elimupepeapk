@@ -47,15 +47,21 @@ keytool -genkeypair -v \
 
 ## Build commands
 
+The app has `prod` and `staging` flavours (see `docs/ENVIRONMENTS.md`). Release builds are the
+`prod` flavour and keep the application ID `com.loho.elimupepe`; signing is unchanged.
+
 ```bash
-flutter build apk --release
+flutter build apk --release --flavor prod --dart-define=ENV=prod
 ```
 
 or
 
 ```bash
-flutter build appbundle --release
+flutter build appbundle --release --flavor prod --dart-define=ENV=prod
 ```
+
+Output names now include the flavour: `app-prod-release.apk` and
+`build/app/outputs/bundle/prodRelease/app-prod-release.aab`.
 
 ## Automated CI/CD (GitHub Actions)
 

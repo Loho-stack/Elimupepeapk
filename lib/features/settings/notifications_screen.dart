@@ -189,12 +189,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isUnread
-                          ? AppColors.lightGreen.withOpacity(0.05)
+                          ? AppColors.lightGreen.withValues(alpha: 0.05)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isUnread
-                            ? AppColors.lightGreen.withOpacity(0.3)
+                            ? AppColors.lightGreen.withValues(alpha: 0.3)
                             : Colors.grey.shade200,
                       ),
                     ),
@@ -202,7 +202,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       children: [
                         CircleAvatar(
                           backgroundColor: isUnread
-                              ? AppColors.lightGreen.withOpacity(0.2)
+                              ? AppColors.lightGreen.withValues(alpha: 0.2)
                               : const Color(0xFFF0F8FF),
                           child: Icon(
                             Icons.notifications_rounded,

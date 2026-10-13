@@ -87,9 +87,6 @@ flutter_launcher_icons:
   android: true
   ios: false
   image_path: assets/images/elimu.png
-web:
-  generate: true
-  image_path: "./assets/images/elimu.png"
 
 flutter_native_splash:
   color: "#ffffff"

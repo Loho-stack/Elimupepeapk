@@ -201,7 +201,6 @@ void main() {
     late ScriptedAdapter adapter;
     late FakeConnectivity net;
     late int expired;
-    late List<String> log;
 
     ApiClient client({TokenRefresher? refresher, AppConfig? config}) =>
         ApiClient(
@@ -219,7 +218,6 @@ void main() {
       store = TokenStore(kv);
       net = FakeConnectivity();
       expired = 0;
-      log = [];
       adapter = ScriptedAdapter((o) => jsonBody({'ok': true}));
     });
 

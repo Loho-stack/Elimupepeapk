@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
@@ -22,7 +21,7 @@ Future<void> _launchWhatsApp(BuildContext context) async {
 }
 
 Future<void> _launchWebsite(BuildContext context) async {
-  final Uri url = Uri.parse('${AppEndpoints.webBaseUrl}');
+  final Uri url = Uri.parse(AppEndpoints.webBaseUrl);
   if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
     if (context.mounted) {
       ScaffoldMessenger.of(
@@ -54,26 +53,6 @@ Future<void> _launchPhone(BuildContext context) async {
   }
 }
 
-Widget _buildInstructionStep({required IconData icon, required String text}) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Icon(icon, color: Colors.white.withOpacity(0.8), size: 24),
-      const SizedBox(width: 16),
-      Expanded(
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            height: 1.4,
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
 class RoleSelectionScreen extends StatelessWidget {
   const RoleSelectionScreen({super.key});
 
@@ -94,9 +73,9 @@ class RoleSelectionScreen extends StatelessWidget {
               content: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.75),
+                  color: Colors.black.withValues(alpha: 0.75),
                   borderRadius: BorderRadius.circular(12.0),
-                  border: Border.all(color: Colors.white.withOpacity(0.18)),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -171,8 +150,8 @@ class RoleSelectionScreen extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.brandGreen.withOpacity(0.8),
-                    AppColors.lightGreen.withOpacity(0.9),
+                    AppColors.brandGreen.withValues(alpha: 0.8),
+                    AppColors.lightGreen.withValues(alpha: 0.9),
                   ],
                 ),
               ),
@@ -185,7 +164,7 @@ class RoleSelectionScreen extends StatelessWidget {
               height: 220,
               width: 220,
               decoration: BoxDecoration(
-                color: AppColors.brandGreen.withOpacity(0.08),
+                color: AppColors.brandGreen.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
             ),
@@ -197,7 +176,7 @@ class RoleSelectionScreen extends StatelessWidget {
               height: 260,
               width: 260,
               decoration: BoxDecoration(
-                color: AppColors.brandGreen.withOpacity(0.06),
+                color: AppColors.brandGreen.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
               ),
             ),
@@ -227,7 +206,7 @@ class RoleSelectionScreen extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 12,
                               offset: const Offset(0, 5),
                             ),
@@ -252,7 +231,7 @@ class RoleSelectionScreen extends StatelessWidget {
                       Text(
                         'Please select your role to get started.',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 15,
                         ),
                         textAlign: TextAlign.center,
@@ -298,7 +277,7 @@ class RoleSelectionScreen extends StatelessWidget {
                       Center(
                         child: TextButton.icon(
                           style: TextButton.styleFrom(
-                            backgroundColor: Colors.black.withOpacity(0.25),
+                            backgroundColor: Colors.black.withValues(alpha: 0.25),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 24,
@@ -307,7 +286,7 @@ class RoleSelectionScreen extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(99),
                               side: BorderSide(
-                                color: Colors.white.withOpacity(0.4),
+                                color: Colors.white.withValues(alpha: 0.4),
                               ),
                             ),
                           ),
@@ -336,14 +315,14 @@ class RoleSelectionScreen extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons.language,
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   'elimupepe.loholearning.co.ke',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -358,14 +337,14 @@ class RoleSelectionScreen extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons.email_outlined,
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   'support@loholearning.co.ke',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -380,14 +359,14 @@ class RoleSelectionScreen extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons.phone_outlined,
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   '+254 797 349 396',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -436,7 +415,7 @@ class _RoleCardState extends State<_RoleCard> {
   Widget build(BuildContext context) {
     return Card(
           elevation: 4,
-          shadowColor: Colors.black.withOpacity(0.1),
+          shadowColor: Colors.black.withValues(alpha: 0.1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -453,7 +432,7 @@ class _RoleCardState extends State<_RoleCard> {
                   }
                 },
                 borderRadius: BorderRadius.circular(20),
-                splashColor: AppColors.lightGreen.withOpacity(0.2),
+                splashColor: AppColors.lightGreen.withValues(alpha: 0.2),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -505,7 +484,7 @@ class _RoleCardState extends State<_RoleCard> {
                     widget.webMessage!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: AppColors.brandGreen.withOpacity(0.9),
+                      color: AppColors.brandGreen.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w500,
                     ),
                   ),

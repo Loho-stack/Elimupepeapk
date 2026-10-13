@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:elimupepe/app/app_config.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/design/clay.dart';
-import 'package:elimupepe/core/network/interceptors/connectivity_interceptor.dart';
 import 'package:elimupepe/core/webview/sso_token_service.dart';
 import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'package:elimupepe/core/webview/web_engine.dart';

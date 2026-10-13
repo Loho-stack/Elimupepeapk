@@ -51,8 +51,6 @@ class _MainViewState extends State<MainView> {
   String _grade = "";
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _sectionScrollController = ScrollController();
-  bool _showWeeklySummary = false;
-  bool _showParentTip = false;
   DashboardSection _selectedSection = DashboardSection.overview;
 
   List<Competency> _competencies = [];

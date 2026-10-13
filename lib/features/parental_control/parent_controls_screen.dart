@@ -82,7 +82,7 @@ class _ParentControlsScreenState extends State<ParentControlsScreen> {
           : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: widget.children.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final child = widget.children[index];
                 return Container(
@@ -170,7 +170,7 @@ class _ParentControlsScreenState extends State<ParentControlsScreen> {
           Switch.adaptive(
             value: enabled,
             onChanged: (v) => _toggleAccess(child.id, v),
-            activeColor: AppColors.primaryBlue,
+            activeThumbColor: AppColors.primaryBlue,
           ),
       ],
     );
@@ -193,7 +193,7 @@ class _ParentControlsScreenState extends State<ParentControlsScreen> {
               ),
             ),
             Text(
-              '${minutes} min',
+              '$minutes min',
               style: const TextStyle(
                 fontWeight: FontWeight.w800,
                 color: AppColors.primaryBlue,
