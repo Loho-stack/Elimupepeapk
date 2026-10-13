@@ -6,11 +6,13 @@ import 'package:flutter/services.dart' show appFlavor;
 ///   flutter run --flavor prod    --dart-define=ENV=prod
 ///   flutter run --flavor staging --dart-define=ENV=staging
 ///
-/// Phase 2A (App API v1) features are off by default because the server keeps
-/// every `/api/app/v1` path answering 404 until cut-over. Turn them on per
-/// environment once it is deployed:
+/// Phase 2A (App API v1) features follow the environment: on for staging
+/// (the API is deployed there), off for prod until the production cut-over,
+/// because the server keeps every `/api/app/v1` path answering 404 until
+/// then. `--dart-define=APP_API_V1=true|false` overrides the default, and the
+/// four flags below can still be set one by one:
 ///
-///   --dart-define=APP_API_V1=true          all three flags below
+///   --dart-define=APP_API_V1=true          all the flags below
 ///   --dart-define=A11Y_REMOTE_SYNC=true    sync accessibility settings
 ///   --dart-define=TOKEN_REFRESH=true       refresh tokens (also needs the
 ///                                          App API v1 login, see AuthFlow)
@@ -35,7 +37,7 @@ class AppConfig {
   final bool appConfigEndpoint;
 
   static const _env = String.fromEnvironment('ENV', defaultValue: 'prod');
-  static const _all = bool.fromEnvironment('APP_API_V1');
+  static const _allRaw = String.fromEnvironment('APP_API_V1');
   static const _sync = bool.fromEnvironment('A11Y_REMOTE_SYNC');
   static const _refresh = bool.fromEnvironment('TOKEN_REFRESH');
   static const _login = bool.fromEnvironment('APP_API_V1_LOGIN');
@@ -47,15 +49,26 @@ class AppConfig {
   static final AppConfig current = resolve(
     envDefine: _env,
     flavor: appFlavor,
-    a11yRemoteSync: _all || _sync,
-    tokenRefresh: _all || _refresh,
-    appApiV1Login: _all || _login,
-    appConfigEndpoint: _all || _config,
+    appApiV1: appApiV1Default(env: _env, define: _allRaw),
+    a11yRemoteSync: _sync,
+    tokenRefresh: _refresh,
+    appApiV1Login: _login,
+    appConfigEndpoint: _config,
   );
+
+  /// The value of `APP_API_V1` for a build: an explicit define wins, an empty
+  /// one means "on for staging, off for prod".
+  static bool appApiV1Default({required String env, required String define}) {
+    final v = define.trim().toLowerCase();
+    if (v == 'true') return true;
+    if (v == 'false') return false;
+    return env == 'staging';
+  }
 
   static AppConfig resolve({
     required String envDefine,
     String? flavor,
+    bool appApiV1 = false,
     bool a11yRemoteSync = false,
     bool tokenRefresh = false,
     bool appApiV1Login = false,
@@ -81,10 +94,10 @@ class AppConfig {
     }
     return AppConfig(
       env: fromDefine,
-      a11yRemoteSync: a11yRemoteSync,
-      tokenRefresh: tokenRefresh,
-      appApiV1Login: appApiV1Login,
-      appConfigEndpoint: appConfigEndpoint,
+      a11yRemoteSync: appApiV1 || a11yRemoteSync,
+      tokenRefresh: appApiV1 || tokenRefresh,
+      appApiV1Login: appApiV1 || appApiV1Login,
+      appConfigEndpoint: appApiV1 || appConfigEndpoint,
     );
   }
 

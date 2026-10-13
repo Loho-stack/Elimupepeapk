@@ -33,6 +33,25 @@ void main() {
       expect(c.appApiV1Login, isFalse);
     });
 
+    test('APP_API_V1 defaults on for staging and off for prod, an explicit value wins', () {
+      bool d(String env, String define) =>
+          AppConfig.appApiV1Default(env: env, define: define);
+      expect(d('staging', ''), isTrue);
+      expect(d('prod', ''), isFalse);
+      expect(d('prod', 'true'), isTrue);
+      expect(d('staging', 'false'), isFalse);
+      expect(d('staging', 'FALSE'), isFalse);
+
+      final on = AppConfig.resolve(envDefine: 'staging', appApiV1: true);
+      expect(
+          [on.a11yRemoteSync, on.tokenRefresh, on.appApiV1Login, on.appConfigEndpoint],
+          everyElement(isTrue));
+      final off = AppConfig.resolve(envDefine: 'prod', appApiV1: false);
+      expect(
+          [off.a11yRemoteSync, off.tokenRefresh, off.appApiV1Login, off.appConfigEndpoint],
+          everyElement(isFalse));
+    });
+
     test('flavor and ENV must agree', () {
       expect(AppConfig.resolve(envDefine: 'staging', flavor: 'staging').isStaging,
           isTrue);

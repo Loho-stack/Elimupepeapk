@@ -52,7 +52,7 @@ When the staging app is registered, replace that JSON and remove the three
 `*_collection_enabled` entries in `android/app/src/staging/AndroidManifest.xml` and the
 `isStaging` check in `lib/main.dart`.
 
-## Phase 2A (App API v1) feature flags, all off by default
+## Phase 2A (App API v1) feature flags: on for staging, off for prod
 
 The server keeps every `/api/app/v1` path answering 404 until `APP_API_ENABLED` is turned on at
 cut-over. Contracts: `docs/api/openapi.yaml`, tag "App API v1", on `origin/docs/api` (a6a0afaa).
@@ -62,10 +62,10 @@ cut-over. Contracts: `docs/api/openapi.yaml`, tag "App API v1", on `origin/docs/
 | `A11Y_REMOTE_SYNC` | Accessibility settings sync through `GET/PUT /api/app/v1/me/accessibility` |
 | `TOKEN_REFRESH` | `ServerRefresh` uses `POST /api/app/v1/auth/refresh` on 401 and ahead of expiry |
 | `APP_API_V1_LOGIN` | Login uses `POST /api/app/v1/auth/{student,parent,teacher}/login` |
-| `APP_API_V1` | All three of the above |
+| `APP_API_V1` | All the flags above, plus `APP_CONFIG`. Default: `true` for the staging flavour, `false` for prod; `--dart-define=APP_API_V1=true\|false` overrides it |
 
-Example once deployed to staging:
-`flutter run --flavor staging --dart-define=ENV=staging --dart-define=APP_API_V1=true`.
+Staging needs no extra define (`flutter run --flavor staging --dart-define=ENV=staging`). Prod stays off until the
+production cut-over; to try it against prod anyway add `--dart-define=APP_API_V1=true`.
 Turn the flags on together: the new login returns the 30 day access token and the refresh token
 that the refresher needs, and the old login returns a 1 year token with no refresh token.
 
