@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "data": {
+    "area": {"id": 41, "title": "Mathematics", "cover": null, "level": "Grade 5", "total": 3, "done": 1, "percent": 33, "state": "in_progress", "mix": {"videos": 1}, "minutes_left": 20, "next_lesson_id": 512, "next_lesson": "Lesson 2", "activity": "2026-10-13T18:20:00+03:00"},
+    "chapters": [
+      {"id": 9, "title": "One", "lessons": [
+        {"id": 511, "name": "Lesson 1", "kind": "Video", "icon": "video", "minutes": 10, "done": true, "locked": false, "lock": null, "render": "native"},
+        {"id": 512, "name": "Lesson 2", "kind": "Reading lesson", "icon": "file-text", "minutes": 10, "done": false, "locked": false, "lock": null, "render": "native"},
+        {"id": 513, "name": "Lesson 3", "kind": "Activity", "icon": "monitor-play", "minutes": null, "done": false, "locked": true, "lock": "order", "render": "webview"}
+      ]}
+    ],
+    "bookmarks": 1,
+    "questions": 2
+  }
+}

@@ -1,0 +1,1 @@
+{"success": false, "message": "The given data was invalid.", "errors": {"course_id": ["You are not enrolled in this course."]}}

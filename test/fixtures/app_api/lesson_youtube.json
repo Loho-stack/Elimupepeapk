@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "data": {
+    "lesson": {"id": 511, "course_id": 41, "name": "Lesson 1", "kind": "Video", "minutes": 10, "done": true, "render": "native", "type": "youtube", "content": {"video_id": "dQw4w9WgXcQ"}, "webview": null},
+    "course": {"id": 41, "title": "Mathematics"},
+    "position": {"n": 1, "of": 3, "chapter": "One"},
+    "prev": null,
+    "next": {"id": 512, "name": "Lesson 2", "kind": "Reading lesson", "locked": false, "lock": null},
+    "next_waits": false,
+    "chapter_last": false,
+    "course_last": false,
+    "progress": {"done": 1, "total": 3, "percent": 33},
+    "saved": false,
+    "can_save": true,
+    "note": null,
+    "questions": {"approved": [], "mine_pending": []}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "data": {
+    "server_time": "2026-10-14T09:30:00+03:00",
+    "widgets": {
+      "continue": null, "reading": [], "classes": [],
+      "assignments": {"due": [], "returned": []},
+      "quizzes": [], "grades": [], "coins": null, "week": null, "msafara": null, "videos": []
+    },
+    "streak": 0,
+    "school": null,
+    "subscription": {"required": false, "active": true, "covered_by": "school"}
+  }
+}

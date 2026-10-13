@@ -1,0 +1,35 @@
+{
+  "success": true,
+  "data": {
+    "server_time": "2026-10-14T09:30:00+03:00",
+    "widgets": {
+      "continue": {"id": 41, "title": "Mathematics Grade 5", "thumbnail": "https://staging.loholearning.co.ke/uploads/maths.jpg", "percent": 40, "done": 4, "total": 10, "lesson_id": 512, "lesson": "Adding fractions"},
+      "reading": [{"id": 7, "title": "Simple Stories", "page": 12, "percent": 30, "thumbnail": null}],
+      "classes": [
+        {"id": 90, "title": "Maths live", "starts_at": "2026-10-14T10:00:00+03:00", "ends_at": "2026-10-14T10:40:00+03:00", "when": "Today", "time": "10:00", "can_join": false, "live": false}
+      ],
+      "assignments": {
+        "due": [{"id": 5, "title": "Fractions worksheet", "deadline": "Thu 15 Oct, 17:00", "overdue": false, "urgent": true}],
+        "returned": [{"id": 4, "title": "Numbers test", "score": 18, "max": 20, "on": "9 Oct"}]
+      },
+      "quizzes": [{"id": 3, "title": "Fractions quiz", "marks": 8, "total": 10, "percent": 80, "passed": true, "marked": true, "date": "8 Oct 2026"}],
+      "grades": [{"title": "Term 2 Maths", "score": 72.0, "max": 100.0, "level": "ME", "on": "1 Oct 2026"}],
+      "coins": {
+        "balance": 120.5,
+        "transactions": [{"amount": 5, "label": "Lesson completed", "on": "13 Oct"}],
+        "badges": [{"name": "Reader", "tier": "bronze", "on": "2 Oct"}],
+        "milestones": [{"name": "First 100 coins", "on": "5 Oct"}]
+      },
+      "week": {"days": [
+        {"label": "Mon", "minutes": 20, "today": false}, {"label": "Tue", "minutes": 0, "today": false},
+        {"label": "Wed", "minutes": 35, "today": true}, {"label": "Thu", "minutes": 0, "today": false},
+        {"label": "Fri", "minutes": 0, "today": false}, {"label": "Sat", "minutes": 0, "today": false},
+        {"label": "Sun", "minutes": 0, "today": false}], "total_minutes": 55},
+      "msafara": {"label": "Day 12", "town": "Nakuru", "done": 12, "total": 40, "km_today": 18.5},
+      "videos": [{"id": 8, "title": "Counting song", "percent": 60, "thumbnail": null}]
+    },
+    "streak": 4,
+    "school": null,
+    "subscription": {"required": true, "active": true, "covered_by": null}
+  }
+}

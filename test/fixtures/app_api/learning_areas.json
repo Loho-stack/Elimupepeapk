@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "data": {
+    "hero": {"id": 41, "title": "Mathematics", "cover": "https://staging.loholearning.co.ke/uploads/maths.jpg", "level": "Grade 5", "total": 4, "done": 1, "percent": 25, "state": "in_progress", "mix": {"videos": 1, "slides": 1, "notes": 2}, "minutes_left": 30, "next_lesson_id": 512, "next_lesson": "Maths 2", "activity": "2026-10-13T18:20:00+03:00"},
+    "chips": {"in_progress": 1, "lessons_week": 3, "books_reading": 1},
+    "areas": [
+      {"id": 41, "title": "Mathematics", "cover": "https://staging.loholearning.co.ke/uploads/maths.jpg", "level": "Grade 5", "total": 4, "done": 1, "percent": 25, "state": "in_progress", "mix": {"videos": 1, "slides": 1, "notes": 2}, "minutes_left": 30, "next_lesson_id": 512, "next_lesson": "Maths 2", "activity": "2026-10-13T18:20:00+03:00"},
+      {"id": 42, "title": "Science", "cover": null, "level": "Grade 5", "total": 3, "done": 0, "percent": 0, "state": "not_started", "mix": {"videos": 3}, "minutes_left": null, "next_lesson_id": 600, "next_lesson": "Plants", "activity": null},
+      {"id": 43, "title": "Kiswahili", "cover": null, "level": "Grade 5", "total": 2, "done": 2, "percent": 100, "state": "done", "mix": {}, "minutes_left": null, "next_lesson_id": null, "next_lesson": null, "activity": "2026-10-01T08:00:00+03:00"},
+      {"id": 44, "title": "Art", "cover": null, "level": "Grade 5", "total": 0, "done": 0, "percent": 0, "state": "coming_soon", "mix": {}, "minutes_left": null, "next_lesson_id": null, "next_lesson": null, "activity": null}
+    ]
+  }
+}

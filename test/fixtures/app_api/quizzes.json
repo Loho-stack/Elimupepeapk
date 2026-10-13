@@ -1,0 +1,7 @@
+{
+  "success": true,
+  "data": [
+    {"id": 60, "title": "Fractions quiz", "cover": null, "state": "attempted", "attempts": 2, "best": 8.0, "total": 10.0, "webview": {"required": true, "path": "/quiz-start/60/9/fractions-quiz"}},
+    {"id": 61, "title": "Numbers quiz", "cover": null, "state": "not_started", "attempts": 0, "best": null, "total": null, "webview": {"required": true, "path": null}}
+  ]
+}

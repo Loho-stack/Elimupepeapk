@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "data": {
+    "lesson": {"id": 513, "course_id": 41, "name": "Lesson 3", "kind": "Activity", "minutes": null, "done": false, "render": "webview", "type": "webview", "content": null, "webview": {"path": "/fullscreen-view/41/513"}},
+    "course": {"id": 41, "title": "Mathematics"},
+    "position": {"n": 3, "of": 3, "chapter": "One"},
+    "prev": {"id": 512, "name": "Lesson 2", "kind": "Reading lesson", "locked": false, "lock": null},
+    "next": null,
+    "next_waits": false,
+    "chapter_last": true,
+    "course_last": true,
+    "progress": {"done": 2, "total": 3, "percent": 67},
+    "saved": false,
+    "can_save": true,
+    "note": null,
+    "questions": {"approved": [], "mine_pending": []}
+  }
+}

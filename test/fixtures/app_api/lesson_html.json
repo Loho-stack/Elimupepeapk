@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "data": {
+    "lesson": {"id": 512, "course_id": 41, "name": "Lesson 2", "kind": "Reading lesson", "minutes": 10, "done": false, "render": "native", "type": "html", "content": {"html": "<p>Add <b>fractions</b> with the same bottom number.</p>", "has_embedded_media": false}, "webview": null},
+    "course": {"id": 41, "title": "Mathematics"},
+    "position": {"n": 2, "of": 3, "chapter": "One"},
+    "prev": {"id": 511, "name": "Lesson 1", "kind": "Video", "locked": false, "lock": null},
+    "next": {"id": 513, "name": "Lesson 3", "kind": "Activity", "locked": true, "lock": "order"},
+    "next_waits": true,
+    "chapter_last": false,
+    "course_last": false,
+    "progress": {"done": 1, "total": 3, "percent": 33},
+    "saved": true,
+    "can_save": true,
+    "note": "remember the common denominator",
+    "questions": {
+      "approved": [{"id": 70, "text": "Why add tops only?", "who": "Wanjiru", "when": "2 days ago", "answers": [{"text": "Because the parts are the same size.", "who": "Grace"}]}],
+      "mine_pending": [{"id": 71, "text": "Can we use 3 numbers?", "who": null, "when": "1 minute ago", "answers": []}]
+    }
+  }
+}
