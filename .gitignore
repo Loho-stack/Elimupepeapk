@@ -62,3 +62,12 @@ android/**/*.keystore
 /android/app/src/main/assets/ebooks/
 /android/app/src/main/assets/ebooks/**
 elimupepe-8acc4-firebase-adminsdk-*.json
+
+# Signing material and secrets (never commit)
+*.jks
+*.keystore
+*.p12
+android/key.properties
+android/keystore.properties
+android/*.secret.properties
+android/app/*.secret.properties
