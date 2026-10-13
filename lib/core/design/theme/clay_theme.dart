@@ -35,6 +35,21 @@ abstract final class ClayFonts {
   static const dyslexic = 'OpenDyslexic';
 }
 
+/// Sets a weight on a theme style and keeps the variable-font `wght` axis in
+/// step. Fredoka stops at 700, so heavier requests are clamped for it to
+/// avoid synthetic bold.
+TextStyle clayWeight(TextStyle s, FontWeight w) {
+  final capped = s.fontFamily == ClayFonts.display && w.value > 700
+      ? ClayType.bold
+      : w;
+  return s.copyWith(
+    fontWeight: capped,
+    fontVariations: s.fontVariations == null
+        ? null
+        : [FontVariation('wght', capped.value.toDouble())],
+  );
+}
+
 abstract final class ClayTheme {
   static ThemeData build([ClayThemeOptions o = const ClayThemeOptions()]) {
     final p = ClayPalette.resolve(o.mode, colourBlind: o.colourBlind);
@@ -53,9 +68,13 @@ abstract final class ClayTheme {
           letterSpacing: letter * size,
           wordSpacing: word * size,
           color: p.ink,
+          fontVariations: o.dyslexia
+              ? null
+              : [FontVariation('wght', w.value.toDouble())],
         );
     TextStyle head(double size, {FontWeight w = ClayType.semibold}) =>
-        body(size, w: w).copyWith(fontFamily: displayFamily, height: height - 0.2);
+        body(size, w: w.value > 700 ? ClayType.bold : w)
+            .copyWith(fontFamily: displayFamily, height: height - 0.2);
 
     final textTheme = TextTheme(
       displayLarge: head(ClayType.xxl, w: ClayType.bold),

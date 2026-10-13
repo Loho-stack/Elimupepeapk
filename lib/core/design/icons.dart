@@ -27,7 +27,7 @@ abstract final class ClayIcons {
   static const IconData passes = LucideIcons.ticket;
   static const IconData myClass = LucideIcons.users;
   static const IconData profile = LucideIcons.user;
-  static const IconData accessibility = LucideIcons.accessibility;
+  static const IconData accessibility = LucideIcons.personStanding;
   static const IconData help = LucideIcons.circleHelp;
   static const IconData logout = LucideIcons.logOut;
   static const IconData menu = LucideIcons.menu;
