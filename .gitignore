@@ -71,3 +71,6 @@ android/key.properties
 android/keystore.properties
 android/*.secret.properties
 android/app/*.secret.properties
+
+# Golden test diff output
+test/**/failures/
