@@ -15,6 +15,8 @@ import 'package:flutter/services.dart' show appFlavor;
 ///   --dart-define=TOKEN_REFRESH=true       refresh tokens (also needs the
 ///                                          App API v1 login, see AuthFlow)
 ///   --dart-define=APP_API_V1_LOGIN=true    log in through /auth/*/login
+///   --dart-define=APP_CONFIG=true          start-up config (GET /app/config)
+///                                          replaces the missing /v1/app/version
 enum AppEnv { prod, staging }
 
 class AppConfig {
@@ -23,18 +25,21 @@ class AppConfig {
     this.a11yRemoteSync = false,
     this.tokenRefresh = false,
     this.appApiV1Login = false,
+    this.appConfigEndpoint = false,
   });
 
   final AppEnv env;
   final bool a11yRemoteSync;
   final bool tokenRefresh;
   final bool appApiV1Login;
+  final bool appConfigEndpoint;
 
   static const _env = String.fromEnvironment('ENV', defaultValue: 'prod');
   static const _all = bool.fromEnvironment('APP_API_V1');
   static const _sync = bool.fromEnvironment('A11Y_REMOTE_SYNC');
   static const _refresh = bool.fromEnvironment('TOKEN_REFRESH');
   static const _login = bool.fromEnvironment('APP_API_V1_LOGIN');
+  static const _config = bool.fromEnvironment('APP_CONFIG');
 
   /// The configuration of this build. Throws at start-up if the Android
   /// flavour and `--dart-define=ENV` disagree, so a prod app can never talk
@@ -45,6 +50,7 @@ class AppConfig {
     a11yRemoteSync: _all || _sync,
     tokenRefresh: _all || _refresh,
     appApiV1Login: _all || _login,
+    appConfigEndpoint: _all || _config,
   );
 
   static AppConfig resolve({
@@ -53,6 +59,7 @@ class AppConfig {
     bool a11yRemoteSync = false,
     bool tokenRefresh = false,
     bool appApiV1Login = false,
+    bool appConfigEndpoint = false,
   }) {
     AppEnv? parse(String? v) => switch (v) {
           'prod' => AppEnv.prod,
@@ -77,6 +84,7 @@ class AppConfig {
       a11yRemoteSync: a11yRemoteSync,
       tokenRefresh: tokenRefresh,
       appApiV1Login: appApiV1Login,
+      appConfigEndpoint: appConfigEndpoint,
     );
   }
 

@@ -492,6 +492,7 @@ void main() {
       final c = A11yController(store: MemoryStore());
       await c.load();
       await tester.pumpWidget(host(c, FakeSpeech()));
+      await tester.pump(); // the app bar registers with the host
       await tester.tap(find.bySemanticsLabel('Accessibility settings'));
       await tester.pumpAndSettle();
       expect(find.text('Read aloud'), findsOneWidget);
@@ -514,6 +515,7 @@ void main() {
       final c = A11yController(store: MemoryStore());
       await c.load();
       await tester.pumpWidget(host(c, FakeSpeech()));
+      await tester.pump(); // the app bar registers with the host
       await tester.tap(find.bySemanticsLabel('Accessibility settings'));
       await tester.pumpAndSettle();
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
@@ -528,6 +530,7 @@ void main() {
       await c.load();
       final speech = FakeSpeech()..result = SpeakResult.noVoice;
       await tester.pumpWidget(host(c, speech));
+      await tester.pump(); // the app bar registers with the host
       await tester.tap(find.bySemanticsLabel('Accessibility settings'));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('Test voice'));
@@ -543,6 +546,7 @@ void main() {
       final c = A11yController(store: MemoryStore());
       await c.load();
       await tester.pumpWidget(host(c, FakeSpeech()));
+      await tester.pump(); // the app bar registers with the host
       await tester.tap(find.bySemanticsLabel('Accessibility settings'));
       await tester.pumpAndSettle();
       await c.update(c.settings.copyWith(textSize: 2));
@@ -561,6 +565,7 @@ void main() {
         final c = A11yController(store: MemoryStore());
         await c.load();
         await tester.pumpWidget(host(c, FakeSpeech(), scale: scale));
+      await tester.pump(); // the app bar registers with the host
         await tester.tap(find.bySemanticsLabel('Accessibility settings'));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);

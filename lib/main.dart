@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:elimupepe/app/app.dart';
 import 'package:elimupepe/app/app_config.dart';
 import 'package:elimupepe/app/app_services.dart';
-import 'package:elimupepe/features/auth/welcome_screen.dart';
-import 'package:elimupepe/core/services/analytics_service.dart';
-import 'package:elimupepe/core/theme/app_page_transitions.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
-import 'package:elimupepe/features/auth/auth_gate.dart';
 import 'package:elimupepe/firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,18 +13,6 @@ import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/services.dart';
-
-final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
-
-/// A 401 that could not be refreshed (or an account that was disabled):
-/// wipe the device and go back to the welcome flow.
-Future<void> _onSessionExpired() async {
-  await AppServices.instance.endSession();
-  appNavigatorKey.currentState?.pushAndRemoveUntil(
-    MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-    (route) => false,
-  );
-}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -107,7 +92,6 @@ class _AppBootstrapperState extends State<AppBootstrapper> {
     try {
       await AppServices.instance.runStartup();
     } catch (_) {}
-    AppServices.instance.sessionExpired.addListener(_onSessionExpired);
 
     if (mounted) {
       setState(() {
@@ -132,37 +116,6 @@ class _AppBootstrapperState extends State<AppBootstrapper> {
       );
     }
 
-    return const SecureElimupepeApp();
-  }
-}
-
-class SecureElimupepeApp extends StatelessWidget {
-  const SecureElimupepeApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final analyticsObserver = AnalyticsService.instance.navigatorObserver;
-
-    return MaterialApp(
-      title: 'Elimu Pepe',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.brandGreen,
-          primary: AppColors.brandGreen,
-          secondary: AppColors.lightGreen,
-        ),
-        pageTransitionsTheme: AppPageTransitions.theme,
-        scaffoldBackgroundColor: AppColors.surfaceGray,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.brandGreen,
-          foregroundColor: AppColors.textLight,
-        ),
-      ),
-      navigatorKey: appNavigatorKey,
-      navigatorObservers: [if (analyticsObserver != null) analyticsObserver],
-      home: const AuthGate(),
-    );
+    return const ElimuPepeApp();
   }
 }

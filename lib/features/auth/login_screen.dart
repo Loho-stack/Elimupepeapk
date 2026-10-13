@@ -1,3 +1,4 @@
+import 'package:elimupepe/app/session_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
@@ -7,14 +8,10 @@ import 'package:elimupepe/core/widgets/elimu_button.dart';
 import 'package:elimupepe/core/utils/error_feedback.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
 import 'package:elimupepe/core/widgets/elimu_text_field.dart';
-import 'package:elimupepe/features/home/dashboard_screen.dart';
 import 'package:elimupepe/core/services/analytics_service.dart';
-import 'package:elimupepe/core/theme/app_page_transitions.dart';
 import 'package:firebase_performance/firebase_performance.dart';
-import 'package:elimupepe/features/teacher/teacher_dashboard.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/webview/sso_webview.dart';
-import 'package:elimupepe/features/parental_control/parent_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -159,11 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // the Student ID is already in secure storage from the login call.
       await AppServices.instance.profile.update(name: loginResult.name);
 
-      if (mounted) {
-        Navigator.of(
-          context,
-        ).pushReplacement(AppPageTransitions.route(_routeForRole(loginResult)));
-      }
+      if (mounted) await context.enterSession();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -183,24 +176,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (ErrorFeedback.isNetworkError(message)) return 'network';
     if (ErrorFeedback.isServerError(message)) return 'server';
     return 'rejected';
-  }
-
-  Widget _routeForRole(LoginResult loginResult) {
-    final roleId = loginResult.roleId;
-    final roleName = loginResult.roleName?.toLowerCase();
-
-    if (roleId == 2 || roleName == 'teacher' || roleName == 'educator') {
-      return const TeacherDashboard();
-    }
-
-    if (roleId == 7 || roleName == 'parent' || roleName == 'guardian') {
-      return const ParentDashboard();
-    }
-
-    return const GamifiedDashboardScreen(
-      initialIndex: 0,
-      restoreLastTab: false,
-    );
   }
 
   @override

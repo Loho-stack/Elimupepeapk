@@ -1,6 +1,6 @@
+import 'package:elimupepe/app/session_controller.dart';
 import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'package:elimupepe/app/app_services.dart';
-import 'welcome_screen.dart';
 import 'package:flutter/material.dart';
 import '../parental_control/parental_gate.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
@@ -314,10 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (!context.mounted) return;
       // 3. Navigate back to the pre-login welcome flow
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-        (route) => false,
-      );
+      context.leaveSession();
     }
   }
 
@@ -355,7 +352,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (shouldDelete == true && context.mounted) {
-      final navigator = Navigator.of(context);
       setState(() {
         // We could show a global loading overlay if we had one
       });
@@ -381,10 +377,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) return;
 
       // Navigate back to the pre-login welcome flow
-      navigator.pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-        (route) => false,
-      );
+      context.leaveSession();
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:elimupepe/app/session_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:dio/dio.dart';
@@ -5,12 +6,10 @@ import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:elimupepe/core/services/analytics_service.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
-import 'package:elimupepe/core/theme/app_page_transitions.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:elimupepe/core/utils/error_feedback.dart';
 import 'package:elimupepe/core/widgets/elimu_button.dart';
 import 'package:elimupepe/core/widgets/elimu_text_field.dart';
-import 'package:elimupepe/features/parental_control/parent_dashboard.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 
 class ParentLoginScreen extends StatefulWidget {
@@ -114,9 +113,7 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
     if (success) {
       AnalyticsService.instance.logLogin(method: 'parent_email');
       if (!mounted) return;
-      Navigator.of(
-        context,
-      ).pushReplacement(AppPageTransitions.route(const ParentDashboard()));
+      await context.enterSession();
     } else {
       AnalyticsService.instance.logEvent(
         'parent_login_failed',

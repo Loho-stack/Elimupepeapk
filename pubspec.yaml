@@ -67,6 +67,7 @@ dependencies:
   flutter_animate: ^4.5.0 # For animations
   image_picker: ^1.1.2
   connectivity_plus: ^6.1.5
+  go_router: ^18.0.2
   flutter_tts: ^4.2.5 # read-aloud, on-device voices only
   lucide_icons_flutter: ^3.1.25 # Lucide icons (see docs/decisions/0001-icons.md)
 dev_dependencies:

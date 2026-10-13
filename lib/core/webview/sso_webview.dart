@@ -40,6 +40,7 @@ class SsoWebViewScreen extends StatefulWidget {
     this.connectivity,
     this.openExternal,
     this.parentalGate,
+    this.onRootBack,
   }) : assert((path == null) != (publicUrl == null),
             'Pass exactly one of path or publicUrl');
 
@@ -54,6 +55,10 @@ class SsoWebViewScreen extends StatefulWidget {
   final ConnectivityChecker? connectivity;
   final Future<bool> Function(Uri uri)? openExternal;
   final Future<bool> Function(BuildContext context)? parentalGate;
+
+  /// When the screen is a tab of a shell, back at the first page calls this
+  /// (for example go to the Home tab) instead of popping the route.
+  final VoidCallback? onRootBack;
 
   /// Opens [path] (relative to the site root) signed in.
   static Future<void> open(
@@ -271,7 +276,13 @@ class _SsoWebViewScreenState extends State<SsoWebViewScreen> {
       await _engine.goBack();
       return;
     }
-    if (mounted) Navigator.of(context).pop();
+    if (!mounted) return;
+    final rootBack = widget.onRootBack;
+    if (rootBack != null) {
+      rootBack();
+    } else {
+      Navigator.of(context).pop();
+    }
   }
 
   @override

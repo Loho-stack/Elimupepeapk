@@ -10,9 +10,11 @@ import 'speech_service.dart';
 
 /// Use as `MaterialApp.builder` content. Applies the user's text size on top
 /// of the OS text scale (capped at 2.0, the largest size the layouts are
-/// tested at), installs the accessibility action for every [ClayAppBar] and
-/// exposes whether Simple view is on.
-class A11yHost extends StatelessWidget {
+/// tested at), installs the accessibility action for every [ClayAppBar],
+/// exposes whether Simple view is on, and shows a floating accessibility
+/// button on screens that have no [ClayAppBar] (so the panel is reachable
+/// from every screen, including the older ones with their own app bars).
+class A11yHost extends StatefulWidget {
   const A11yHost({super.key, required this.navigatorKey, required this.child});
 
   final GlobalKey<NavigatorState> navigatorKey;
@@ -21,22 +23,82 @@ class A11yHost extends StatelessWidget {
   static const double maxTextScale = 2.0;
 
   @override
+  State<A11yHost> createState() => _A11yHostState();
+}
+
+class _A11yHostState extends State<A11yHost> {
+  final ValueNotifier<int> _barCount = ValueNotifier<int>(0);
+
+  @override
+  void dispose() {
+    _barCount.dispose();
+    super.dispose();
+  }
+
+  void _open() {
+    final ctx = widget.navigatorKey.currentContext;
+    if (ctx != null) showA11yPanel(ctx);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final s = context.watch<A11yController>().settings;
     final media = MediaQuery.of(context);
     final os = media.textScaler.scale(1.0);
-    final scale = math.min(os * s.textScale, maxTextScale);
+    final scale = math.min(os * s.textScale, A11yHost.maxTextScale);
 
     return MediaQuery(
       data: media.copyWith(textScaler: TextScaler.linear(scale)),
       child: SimpleView(
         enabled: s.simpleView,
         child: ClayAppBarScope(
-          onOpenAccessibility: () {
-            final ctx = navigatorKey.currentContext;
-            if (ctx != null) showA11yPanel(ctx);
-          },
-          child: child,
+          onOpenAccessibility: _open,
+          presence: _barCount,
+          child: Stack(
+            children: [
+              Positioned.fill(child: widget.child),
+              ValueListenableBuilder<int>(
+                valueListenable: _barCount,
+                builder: (context, count, _) => count > 0
+                    ? const SizedBox.shrink()
+                    : _FloatingA11yButton(onPressed: _open),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A small round button above the bottom bar. Built without Tooltip or
+/// Overlay (it lives above the Navigator).
+class _FloatingA11yButton extends StatelessWidget {
+  const _FloatingA11yButton({required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = ClayTokens.of(context).palette;
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    return Positioned(
+      right: ClaySpace.s2,
+      bottom: bottom + 96,
+      child: ClayPressable(
+        onTap: onPressed,
+        semanticLabel: 'Accessibility settings',
+        builder: (context, pressed, focused) => SizedBox(
+          width: ClaySize.touch,
+          height: ClaySize.touch,
+          child: ClaySurface(
+            radius: ClayRadii.pill,
+            color: p.card,
+            elevation: pressed ? ClayElevation.pressed : ClayElevation.raised,
+            child: Center(
+              child: Icon(ClayIcons.accessibility,
+                  size: 24, color: p.primaryDeep),
+            ),
+          ),
         ),
       ),
     );

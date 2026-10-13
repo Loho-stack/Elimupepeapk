@@ -6,20 +6,31 @@ import '../tokens/clay_tokens.dart';
 import 'clay_button.dart';
 
 /// Supplies the "open accessibility panel" action to every [ClayAppBar]
-/// below it. The app root installs this once, so the panel is reachable
-/// from every screen without each screen wiring it.
+/// below it, and counts how many app bars are on screen. The app root
+/// installs this once, so the panel is reachable from every screen without
+/// each screen wiring it; when no [ClayAppBar] is showing (older screens
+/// with their own app bar) the host shows a floating accessibility button
+/// instead.
 class ClayAppBarScope extends InheritedWidget {
   const ClayAppBarScope({
     super.key,
     required this.onOpenAccessibility,
     required super.child,
+    this.presence,
   });
 
   final VoidCallback? onOpenAccessibility;
 
+  /// Number of [ClayAppBar]s currently mounted.
+  final ValueNotifier<int>? presence;
+
   static VoidCallback? maybeOf(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<ClayAppBarScope>()
       ?.onOpenAccessibility;
+
+  static ValueNotifier<int>? presenceOf(BuildContext context) => context
+      .getInheritedWidgetOfExactType<ClayAppBarScope>()
+      ?.presence;
 
   @override
   bool updateShouldNotify(ClayAppBarScope old) =>
@@ -28,7 +39,7 @@ class ClayAppBarScope extends InheritedWidget {
 
 /// Header bar (`.lpl-top`): back or custom leading, title as a heading,
 /// actions, and the accessibility action when the scope provides one.
-class ClayAppBar extends StatelessWidget implements PreferredSizeWidget {
+class ClayAppBar extends StatefulWidget implements PreferredSizeWidget {
   const ClayAppBar({
     super.key,
     required this.title,
@@ -46,12 +57,64 @@ class ClayAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(64);
 
   @override
+  State<ClayAppBar> createState() => _ClayAppBarState();
+}
+
+class _ClayAppBarState extends State<ClayAppBar> {
+  ValueNotifier<int>? _presence;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final next = widget.showAccessibility
+        ? ClayAppBarScope.presenceOf(context)
+        : null;
+    if (next == _presence) return;
+    _leave();
+    _presence = next;
+    if (next != null) {
+      // Not during build: the host listens and rebuilds.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // The host may already be gone when the whole app is torn down.
+        try {
+          if (mounted && _presence == next) next.value++;
+        } catch (_) {}
+      });
+      _registered = true;
+    }
+  }
+
+  bool _registered = false;
+
+  void _leave() {
+    final p = _presence;
+    if (p != null && _registered) {
+      _registered = false;
+      // The notifier may already be disposed when the whole app goes away.
+      try {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          try {
+            if (p.value > 0) p.value--;
+          } catch (_) {}
+        });
+      } catch (_) {}
+    }
+  }
+
+  @override
+  void dispose() {
+    _leave();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final p = ClayTokens.of(context).palette;
-    final openA11y = showAccessibility ? ClayAppBarScope.maybeOf(context) : null;
+    final openA11y =
+        widget.showAccessibility ? ClayAppBarScope.maybeOf(context) : null;
     final canPop = Navigator.maybeOf(context)?.canPop() ?? false;
 
-    final lead = leading ??
+    final lead = widget.leading ??
         (canPop
             ? ClayIconButton(
                 icon: ClayIcons.back,
@@ -80,7 +143,7 @@ class ClayAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: SafeArea(
         bottom: false,
         child: SizedBox(
-          height: preferredSize.height,
+          height: widget.preferredSize.height,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: ClaySpace.s2),
             child: Row(
@@ -90,14 +153,14 @@ class ClayAppBar extends StatelessWidget implements PreferredSizeWidget {
                   child: Semantics(
                     header: true,
                     child: Text(
-                      title,
+                      widget.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                 ),
-                ...actions,
+                ...widget.actions,
                 if (openA11y != null)
                   ClayIconButton(
                     icon: ClayIcons.accessibility,

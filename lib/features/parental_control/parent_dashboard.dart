@@ -1,3 +1,4 @@
+import 'package:elimupepe/app/session_controller.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -5,7 +6,6 @@ import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:elimupepe/core/services/parent_api_service.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
 import 'package:elimupepe/core/utils/error_feedback.dart';
-import 'package:elimupepe/features/auth/welcome_screen.dart';
 import 'package:elimupepe/features/parental_control/linked_children_screen.dart';
 import 'package:elimupepe/features/parental_control/parent_child_detail_screen.dart';
 import 'package:elimupepe/features/parental_control/parent_controls_screen.dart';
@@ -76,10 +76,7 @@ class _ParentDashboardState extends State<ParentDashboard> {
   Future<void> _logout() async {
     await AuthService.instance.logout();
     if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-      (route) => false,
-    );
+    context.leaveSession();
   }
 
   void _openLinkedChildren() {

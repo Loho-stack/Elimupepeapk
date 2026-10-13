@@ -1,3 +1,4 @@
+import 'package:elimupepe/app/session_controller.dart';
 import 'package:elimupepe/core/webview/sso_webview.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'dart:math' as math;
@@ -10,7 +11,6 @@ import 'package:elimupepe/core/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:elimupepe/features/home/category_items_screen.dart';
 import 'package:elimupepe/features/quiz/learner_dashboard_api_service.dart';
-import 'package:elimupepe/features/auth/welcome_screen.dart';
 
 enum DashboardSection {
   overview,
@@ -322,10 +322,7 @@ class _MainViewState extends State<MainView> {
 
     if (!mounted) return;
 
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-      (route) => false,
-    );
+    context.leaveSession();
   }
 
   @override

@@ -1,18 +1,13 @@
 import 'package:elimupepe/core/webview/sso_webview.dart';
-import 'dart:io';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:in_app_update/in_app_update.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:elimupepe/core/widgets/elimu_button.dart';
 import 'package:elimupepe/core/widgets/elimu_card.dart';
 import 'package:elimupepe/app/app_services.dart';
-import 'package:elimupepe/core/config/app_endpoints.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:elimupepe/features/home/main_view.dart';
 import 'package:elimupepe/features/home/home_screen.dart';
 import 'package:elimupepe/features/home/menu_screen.dart';
@@ -56,7 +51,6 @@ class _GamifiedDashboardScreenState extends State<GamifiedDashboardScreen> {
     super.initState();
     _loadLastSessionState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkForUpdates();
       _loadQuestData();
     });
   }
@@ -976,157 +970,4 @@ class _GamifiedDashboardScreenState extends State<GamifiedDashboardScreen> {
     }
   }
 
-  Future<void> _checkForUpdates() async {
-    bool playStoreUpdateTriggered = false;
-
-    // 1. Try Google Play Store Update First (Only if running on an Android device)
-    if (!kIsWeb && Platform.isAndroid) {
-      try {
-        final updateInfo = await InAppUpdate.checkForUpdate();
-        if (updateInfo.updateAvailability ==
-            UpdateAvailability.updateAvailable) {
-          await InAppUpdate.performImmediateUpdate();
-          playStoreUpdateTriggered = true; // Update handled by Play Store
-        }
-      } catch (e) {
-        debugPrint(
-          'Play Store update check failed (likely sideloaded APK): $e',
-        );
-      }
-    }
-
-    // 2. Fallback: If no Play Store update was triggered, check custom PHP backend
-    // Only perform this check if NOT on Android or if the app was NOT installed from the Play Store
-    bool shouldCheckCustom = !playStoreUpdateTriggered;
-    if (!kIsWeb && Platform.isAndroid) {
-      try {
-        final packageInfo = await PackageInfo.fromPlatform();
-        final installer = packageInfo.installerStore;
-        if (installer != null &&
-            (installer.contains('vending') || installer.contains('google'))) {
-          shouldCheckCustom = false;
-          debugPrint(
-            'App installed via Play Store. Skipping custom update check.',
-          );
-        }
-      } catch (e) {
-        debugPrint('Could not determine installer store: $e');
-      }
-    }
-
-    if (shouldCheckCustom) {
-      try {
-        final packageInfo = await PackageInfo.fromPlatform();
-        final currentBuildNumber = int.tryParse(packageInfo.buildNumber) ?? 0;
-
-        final response = await AppServices.instance.apiClient.api.get(
-          '/v1/app/version',
-          options: Options(extra: const {'noAuth': true}),
-        );
-
-        if (response.statusCode == 200 && response.data != null) {
-          final data = response.data;
-
-          final latestBuildNumber = data['build_number'] as int? ?? 0;
-          final downloadUrl = data['download_url'] as String? ?? '';
-          final isMandatory = data['mandatory'] as bool? ?? false;
-          final releaseNotes =
-              data['release_notes'] as String? ??
-              'A new version is available with bug fixes and improvements.';
-
-          if (latestBuildNumber > currentBuildNumber &&
-              downloadUrl.isNotEmpty &&
-              _isValidUpdateUrl(downloadUrl)) {
-            if (mounted) {
-              _showUpdateDialog(downloadUrl, releaseNotes, isMandatory);
-            }
-          } else if (latestBuildNumber > currentBuildNumber) {
-            debugPrint(
-              'Update available but download URL is invalid or insecure: $downloadUrl',
-            );
-          }
-        }
-      } catch (e) {
-        debugPrint('Failed to check for custom updates: $e');
-      }
-    }
-  }
-
-  void _showUpdateDialog(
-    String downloadUrl,
-    String releaseNotes,
-    bool isMandatory,
-  ) {
-    showDialog(
-      context: context,
-      barrierDismissible:
-          !isMandatory, // Prevent closing if it's a forced update
-      builder: (context) {
-        return PopScope(
-          canPop: !isMandatory, // Prevent Android back button if mandatory
-          child: AlertDialog(
-            title: const Text(
-              'Update Available',
-              style: TextStyle(color: AppColors.brandGreen),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('A new version of the app is ready to install!'),
-                const SizedBox(height: 12),
-                Text(
-                  releaseNotes,
-                  style: const TextStyle(color: Colors.blueGrey),
-                ),
-              ],
-            ),
-            actions: [
-              if (!isMandatory)
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    'Later',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.lightGreen,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () async {
-                  if (!mounted) return;
-                  final messenger = ScaffoldMessenger.of(context);
-                  final passed = await showParentalGate(context);
-                  if (!mounted) return;
-                  if (!passed) return;
-
-                  final uri = Uri.tryParse(downloadUrl);
-                  if (uri == null || !_isValidUpdateUrl(downloadUrl)) {
-                    messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text('Update URL is invalid or untrusted.'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                    return;
-                  }
-
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-                child: const Text('Download Update'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  bool _isValidUpdateUrl(String url) {
-    return AppEndpoints.isTrustedUpdateUrl(url);
-  }
 }

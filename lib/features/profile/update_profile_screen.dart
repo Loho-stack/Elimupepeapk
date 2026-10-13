@@ -1,10 +1,10 @@
+import 'package:elimupepe/app/session_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:elimupepe/core/widgets/elimu_button.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
-import 'package:elimupepe/features/auth/welcome_screen.dart';
 import 'package:elimupepe/core/widgets/elimu_text_field.dart';
 import 'package:elimupepe/core/utils/image_url_resolver.dart';
 import 'package:elimupepe/core/services/user_data_service.dart';
@@ -396,10 +396,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       }
 
       // Navigate back to the pre-login welcome flow
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-        (route) => false,
-      );
+      context.leaveSession();
     }
   }
 
