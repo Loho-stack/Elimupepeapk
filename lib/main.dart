@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:elimupepe/app/app_config.dart';
 import 'package:elimupepe/core/services/analytics_service.dart';
 import 'package:elimupepe/core/theme/app_page_transitions.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:elimupepe/features/auth/auth_gate.dart';
 import 'package:elimupepe/firebase_options.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_performance/firebase_performance.dart';
@@ -60,12 +62,16 @@ class _AppBootstrapperState extends State<AppBootstrapper> {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      // Staging has no registered Firebase app yet (see
+      // android/app/src/staging/README.md): collect nothing from it.
+      final collect = !kDebugMode && !AppConfig.current.isStaging;
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
-        !kDebugMode,
+        collect,
       );
       await FirebasePerformance.instance.setPerformanceCollectionEnabled(
-        !kDebugMode,
+        collect,
       );
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(collect);
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
       PlatformDispatcher.instance.onError = (error, stack) {
         FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);

@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:elimupepe/core/services/analytics_service.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
@@ -84,21 +85,17 @@ class _ParentLoginScreenState extends State<ParentLoginScreen> {
     bool success = false;
     String? message;
     try {
-      final dio = Dio(
-        BaseOptions(
-          baseUrl: AppEndpoints.apiBaseUrl,
-          connectTimeout: const Duration(seconds: 20),
-          receiveTimeout: const Duration(seconds: 20),
-        ),
-      );
-      final response = await dio.post(
+      final response = await AppServices.instance.apiClient.api.post(
         '/v1/auth/login',
         data: {
           'email': _emailController.text.trim(),
           'password': _passwordController.text,
           'role': 'parent',
         },
-        options: Options(validateStatus: (_) => true),
+        options: Options(
+          validateStatus: (_) => true,
+          extra: const {'noAuth': true},
+        ),
       );
 
       if (response.statusCode != 200) {

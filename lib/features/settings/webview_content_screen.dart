@@ -6,7 +6,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/features/parental_control/parental_gate.dart';
 import 'package:elimupepe/core/utils/error_feedback.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -36,7 +36,6 @@ class _WebViewContentScreenState extends State<WebViewContentScreen>
   late final AnimationController _loaderPulseController;
   late final Animation<double> _loaderPulse;
   late String _pageTitle;
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   bool _isLoading = true;
   bool _hasShownLoadError = false;
   bool _isUsingFallback = false;
@@ -234,9 +233,8 @@ class _WebViewContentScreenState extends State<WebViewContentScreen>
       return const {};
     }
 
-    final token =
-        await _secureStorage.read(key: 'passport_token') ??
-        await _secureStorage.read(key: 'auth_token');
+    // Replaced by SsoWebView (no bearer header to webviews) in a later commit.
+    final token = await AppServices.instance.tokenStore.accessToken();
 
     if (token == null || token.isEmpty) {
       return const {};

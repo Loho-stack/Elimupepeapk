@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/models/ebook.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:elimupepe/core/utils/image_url_resolver.dart';
@@ -8,7 +9,8 @@ class PhpApiService {
   factory PhpApiService() => instance;
   PhpApiService._internal();
 
-  final Dio _dio = Dio();
+  /// Same interceptor stack, but no auth: this is a different deployment.
+  late final Dio _dio = AppServices.instance.apiClient.ebooks(_baseUrl);
   static const String _baseUrl = AppEndpoints.ebooksApiBaseUrl;
 
   Ebook _mapBook(Map<String, dynamic> json) {

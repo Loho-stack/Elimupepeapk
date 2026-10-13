@@ -1,0 +1,21 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
+    <!-- Staging build: distinct name, and no Firebase data collection until
+         com.loho.elimupepe.staging is registered in Firebase and the real
+         google-services.json replaces the copy in this folder. -->
+    <application
+        android:label="Elimu Pepe Staging"
+        tools:replace="android:label">
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false"
+            tools:replace="android:value" />
+        <meta-data
+            android:name="firebase_performance_collection_enabled"
+            android:value="false"
+            tools:replace="android:value" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+    </application>
+</manifest>

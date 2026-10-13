@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:elimupepe/core/config/app_endpoints.dart';
-import 'package:elimupepe/core/services/auth_service.dart';
+import 'package:elimupepe/app/app_services.dart';
 
 class ParentLinkedChild {
   final String id;
@@ -52,39 +51,10 @@ class ParentLinkedChild {
 class ParentApiService {
   static final ParentApiService instance = ParentApiService._internal();
   factory ParentApiService() => instance;
-  ParentApiService._internal() {
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          final token = await _getToken();
-          options.headers['Accept'] = 'application/json';
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
-          handler.next(options);
-        },
-        onError: (error, handler) {
-          handler.next(error);
-        },
-      ),
-    );
-  }
+  ParentApiService._internal();
 
-  static const String _baseUrl = AppEndpoints.apiBaseUrl;
-
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: _baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 30),
-      headers: const {'Accept': 'application/json'},
-    ),
-  );
-
-  Future<String?> _getToken() async {
-    return AuthService.instance.getToken();
-  }
+  /// The shared client adds the bearer token and handles 401 and 429.
+  Dio get _dio => AppServices.instance.apiClient.api;
 
   Future<Map<String, dynamic>?> _safeMap(Future<Response<dynamic>> request) async {
     try {
@@ -95,9 +65,8 @@ class ParentApiService {
         if (data is Map) return Map<String, dynamic>.from(data);
       }
     } on DioException catch (e) {
-      debugPrint(
-        'Parent API error ${e.response?.statusCode}: ${e.response?.data}',
-      );
+      // Never print the body: it can contain children's data.
+      if (kDebugMode) debugPrint('Parent API error ${e.response?.statusCode}');
     } catch (e) {
       debugPrint('Parent API unexpected error: $e');
     }
@@ -116,11 +85,11 @@ class ParentApiService {
         }
       }
     } on DioException catch (e) {
-      debugPrint(
-        'Parent API list error ${e.response?.statusCode}: ${e.response?.data}',
-      );
+      if (kDebugMode) {
+        debugPrint('Parent API list error ${e.response?.statusCode}');
+      }
     } catch (e) {
-      debugPrint('Parent API list unexpected error: $e');
+      if (kDebugMode) debugPrint('Parent API list unexpected error');
     }
     return <dynamic>[];
   }

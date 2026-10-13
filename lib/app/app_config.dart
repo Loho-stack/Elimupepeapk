@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart' show appFlavor;
+
 /// Build-time configuration. Everything comes from `--dart-define`, nothing
 /// is read from the device, and no secret lives here.
 ///
@@ -34,12 +36,49 @@ class AppConfig {
   static const _refresh = bool.fromEnvironment('TOKEN_REFRESH');
   static const _login = bool.fromEnvironment('APP_API_V1_LOGIN');
 
-  static const AppConfig current = AppConfig(
-    env: _env == 'staging' ? AppEnv.staging : AppEnv.prod,
+  /// The configuration of this build. Throws at start-up if the Android
+  /// flavour and `--dart-define=ENV` disagree, so a prod app can never talk
+  /// to staging (or the other way round) by a typo in the build command.
+  static final AppConfig current = resolve(
+    envDefine: _env,
+    flavor: appFlavor,
     a11yRemoteSync: _all || _sync,
     tokenRefresh: _all || _refresh,
     appApiV1Login: _all || _login,
   );
+
+  static AppConfig resolve({
+    required String envDefine,
+    String? flavor,
+    bool a11yRemoteSync = false,
+    bool tokenRefresh = false,
+    bool appApiV1Login = false,
+  }) {
+    AppEnv? parse(String? v) => switch (v) {
+          'prod' => AppEnv.prod,
+          'staging' => AppEnv.staging,
+          _ => null,
+        };
+    final fromDefine = parse(envDefine);
+    if (fromDefine == null) {
+      throw StateError('ENV must be prod or staging, got "$envDefine"');
+    }
+    final fromFlavor = parse(flavor);
+    if (flavor != null && flavor.isNotEmpty && fromFlavor == null) {
+      throw StateError('Unknown flavor "$flavor"');
+    }
+    if (fromFlavor != null && fromFlavor != fromDefine) {
+      throw StateError(
+          'Flavor "$flavor" does not match ENV=$envDefine. Build with '
+          '--flavor $flavor --dart-define=ENV=$flavor.');
+    }
+    return AppConfig(
+      env: fromDefine,
+      a11yRemoteSync: a11yRemoteSync,
+      tokenRefresh: tokenRefresh,
+      appApiV1Login: appApiV1Login,
+    );
+  }
 
   bool get isStaging => env == AppEnv.staging;
 

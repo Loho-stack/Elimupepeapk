@@ -44,6 +44,19 @@ android {
         versionName = flutter.versionName
     }
 
+    // prod keeps the existing applicationId (com.loho.elimupepe); staging adds
+    // a suffix so both can be installed side by side.
+    flavorDimensions += "env"
+    productFlavors {
+        create("prod") {
+            dimension = "env"
+        }
+        create("staging") {
+            dimension = "env"
+            applicationIdSuffix = ".staging"
+        }
+    }
+
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
             create("release") {

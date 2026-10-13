@@ -9,6 +9,7 @@ import 'package:elimupepe/core/theme/app_theme.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:elimupepe/core/widgets/elimu_button.dart';
 import 'package:elimupepe/core/widgets/elimu_card.dart';
+import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:elimupepe/features/home/main_view.dart';
@@ -1042,9 +1043,9 @@ class _GamifiedDashboardScreenState extends State<GamifiedDashboardScreen> {
         final packageInfo = await PackageInfo.fromPlatform();
         final currentBuildNumber = int.tryParse(packageInfo.buildNumber) ?? 0;
 
-        final dio = Dio();
-        final response = await dio.get(
-          '${AppEndpoints.apiBaseUrl}/v1/app/version',
+        final response = await AppServices.instance.apiClient.api.get(
+          '/v1/app/version',
+          options: Options(extra: const {'noAuth': true}),
         );
 
         if (response.statusCode == 200 && response.data != null) {

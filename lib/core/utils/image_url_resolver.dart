@@ -1,7 +1,7 @@
 import 'package:elimupepe/core/config/app_endpoints.dart';
 
 class ImageUrlResolver {
-  static const String _defaultBaseUrl = AppEndpoints.webBaseUrl;
+  static String get _defaultBaseUrl => AppEndpoints.webBaseUrl;
 
   static const List<String> _imageKeys = [
     'avatar',
@@ -41,7 +41,7 @@ class ImageUrlResolver {
 
   static String? fromMap(
     Map<String, dynamic>? data, {
-    String baseUrl = _defaultBaseUrl,
+    String? baseUrl,
   }) {
     if (data == null) return null;
 
@@ -73,7 +73,8 @@ class ImageUrlResolver {
     return null;
   }
 
-  static String? normalize(dynamic raw, {String baseUrl = _defaultBaseUrl}) {
+  static String? normalize(dynamic raw, {String? baseUrl}) {
+    baseUrl ??= _defaultBaseUrl;
     if (raw == null) return null;
 
     final value = raw.toString().trim();

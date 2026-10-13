@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "773709142122",
+    "project_id": "elimupepe-8acc4",
+    "storage_bucket": "elimupepe-8acc4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:773709142122:android:8f2d3369dad50cbb709213",
+        "android_client_info": {
+          "package_name": "com.loho.elimupepe.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPs6o82d81V3XLdZSKN8nb2_5X2-VHbuY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:elimupepe/core/design/icons.dart';
 
 class MenuItem {
   final String id;
@@ -56,79 +56,79 @@ class MenuItem {
       MenuItem(
         id: 'learning_areas',
         title: 'My Learning Areas',
-        icon: FontAwesomeIcons.bookOpen,
+        icon: ClayIcons.learn,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'interactive_books',
         title: 'Interactive Books',
-        icon: FontAwesomeIcons.laptopCode,
+        icon: ClayIcons.interactive,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'non_interactive_books',
         title: 'Non-Interactive Books',
-        icon: FontAwesomeIcons.book,
+        icon: ClayIcons.library,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'data_learning',
         title: 'Dals Learning',
-        icon: FontAwesomeIcons.chartSimple,
+        icon: ClayIcons.dals,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'esoma_kids',
         title: 'Esoma Kids',
-        icon: FontAwesomeIcons.childReaching,
+        icon: ClayIcons.esoma,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'virtual_labs',
         title: 'Virtual Labs',
-        icon: FontAwesomeIcons.flask,
+        icon: ClayIcons.labs,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'elimu_quest',
         title: 'Elimu Quest',
-        icon: FontAwesomeIcons.flag,
+        icon: ClayIcons.quest,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'leaderboard',
         title: 'Leaderboard',
-        icon: FontAwesomeIcons.trophy,
+        icon: ClayIcons.leaderboard,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'grade_book',
         title: 'Grade Book',
-        icon: FontAwesomeIcons.clipboardCheck,
+        icon: ClayIcons.gradebook,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'loho_tv',
         title: 'Loho TV',
-        icon: FontAwesomeIcons.tv,
+        icon: ClayIcons.tv,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'live_classes',
         title: 'Live Classes',
-        icon: FontAwesomeIcons.graduationCap,
+        icon: ClayIcons.liveClass,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'games',
         title: 'Games',
-        icon: FontAwesomeIcons.gamepad,
+        icon: ClayIcons.games,
         isComingSoon: false,
       ),
       MenuItem(
         id: 'my_questions',
         title: 'My Questions',
-        icon: FontAwesomeIcons.circleQuestion,
+        icon: ClayIcons.questions,
         isComingSoon: false,
       ),
     ];

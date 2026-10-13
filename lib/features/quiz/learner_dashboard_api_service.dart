@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/config/app_endpoints.dart';
 import 'package:elimupepe/core/services/auth_service.dart';
 import 'package:elimupepe/core/services/user_data_service.dart';
@@ -8,36 +9,13 @@ class LearnerDashboardApiService {
   static final LearnerDashboardApiService instance =
       LearnerDashboardApiService._internal();
   factory LearnerDashboardApiService() => instance;
-  LearnerDashboardApiService._internal() {
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          final token = await _getToken();
-          options.headers['Accept'] = 'application/json';
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
-          handler.next(options);
-        },
-        onError: (error, handler) {
-          handler.next(_normalizeDioException(error));
-        },
-      ),
-    );
-  }
+  LearnerDashboardApiService._internal();
 
-  static const String _baseUrl = AppEndpoints.apiBaseUrl;
-  static const String _webHost = AppEndpoints.webBaseUrl;
+  static String get _webHost => AppEndpoints.webBaseUrl;
 
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: _baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 30),
-      headers: const {'Accept': 'application/json'},
-    ),
-  );
+  /// The shared client adds the bearer token, handles 401 (refresh or
+  /// logout) and 429 backoff, and maps 401/404 to friendly messages.
+  Dio get _dio => AppServices.instance.apiClient.api;
 
   Future<String?> _getToken() async {
     return AuthService.instance.getToken();
@@ -1053,29 +1031,6 @@ class LearnerDashboardApiService {
     }
 
     return null;
-  }
-
-  /// Normalizes common HTTP error codes into user-friendly exceptions.
-  DioException _normalizeDioException(DioException error) {
-    if (error.response?.statusCode == 401) {
-      return DioException(
-        requestOptions: error.requestOptions,
-        response: error.response,
-        type: error.type,
-        message: 'Session expired. Please log in again.',
-      );
-    }
-
-    if (error.response?.statusCode == 404) {
-      return DioException(
-        requestOptions: error.requestOptions,
-        response: error.response,
-        type: error.type,
-        message: 'The requested resource was not found on the server.',
-      );
-    }
-
-    return error;
   }
 }
 

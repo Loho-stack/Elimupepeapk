@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:elimupepe/core/config/app_endpoints.dart';
+import 'package:elimupepe/app/app_services.dart';
+import 'package:elimupepe/core/auth/token_store.dart';
 import 'package:elimupepe/core/utils/error_feedback.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -28,9 +29,9 @@ class AuthService {
   factory AuthService() => instance;
   AuthService._internal();
 
-  static const String _baseUrl = AppEndpoints.apiBaseUrl;
-  static const String _tokenKey = 'auth_token';
-  static const String _passportTokenKey = 'passport_token';
+  /// Tokens live in [TokenStore] (secure storage only).
+  TokenStore get _tokens => AppServices.instance.tokenStore;
+
   static const String _studentIdKey = 'auth_student_id';
   static const String _legacyEmailKey = 'auth_email';
   static const String _userIdKey = 'auth_user_id';
@@ -45,18 +46,8 @@ class AuthService {
     'guardian',
   };
 
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: _baseUrl,
-      connectTimeout: const Duration(seconds: 20),
-      receiveTimeout: const Duration(seconds: 20),
-      sendTimeout: const Duration(seconds: 20),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ),
-  );
+  /// The shared client: bearer token, 401 and 429 handling, offline check.
+  Dio get _dio => AppServices.instance.apiClient.api;
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
@@ -83,7 +74,10 @@ class AuthService {
       Response<dynamic> response = await _dio.post(
         '/v1/auth/login',
         data: {'student_id': normalizedStudentId, 'password': password},
-        options: Options(validateStatus: (_) => true),
+        options: Options(
+          validateStatus: (_) => true,
+          extra: const {'noAuth': true},
+        ),
       );
 
       // Some accounts require confirmation to logout other active devices.
@@ -96,7 +90,10 @@ class AuthService {
             'password': password,
             'force': true,
           },
-          options: Options(validateStatus: (_) => true),
+          options: Options(
+            validateStatus: (_) => true,
+            extra: const {'noAuth': true},
+          ),
         );
       }
 
@@ -134,8 +131,7 @@ class AuthService {
         return const LoginResult(success: false, message: 'Unauthorized.');
       }
 
-      await _secureStorage.write(key: _tokenKey, value: token);
-      await _secureStorage.write(key: _passportTokenKey, value: token);
+      await _tokens.save(AuthTokens(accessToken: token));
       await _secureStorage.write(key: _studentIdKey, value: resolvedStudentId);
       await _secureStorage.write(
         key: _userIdKey,
@@ -232,8 +228,7 @@ class AuthService {
     final roleId = _extractRoleId(user) ?? 7;
     final roleName = _extractRoleName(user) ?? 'parent';
 
-    await _secureStorage.write(key: _tokenKey, value: token);
-    await _secureStorage.write(key: _passportTokenKey, value: token);
+    await _tokens.save(AuthTokens(accessToken: token));
     await _secureStorage.write(key: _roleIdKey, value: roleId.toString());
     await _secureStorage.write(key: _roleNameKey, value: roleName);
 
@@ -267,7 +262,12 @@ class AuthService {
   }
 
   Future<String?> getToken() async {
-    return _readSecureValue(_tokenKey);
+    try {
+      return await _tokens.accessToken();
+    } catch (_) {
+      await _clearSavedSession();
+      return null;
+    }
   }
 
   Future<bool> isLoggedIn() async {
@@ -544,9 +544,12 @@ class AuthService {
   }
 
   Future<void> _clearSavedSession() async {
+    try {
+      await _tokens.clear();
+    } catch (_) {
+      // Ignore cleanup failures so corrupted secure storage never crashes auth.
+    }
     for (final key in const [
-      _tokenKey,
-      _passportTokenKey,
       _studentIdKey,
       _legacyEmailKey,
       _userIdKey,
