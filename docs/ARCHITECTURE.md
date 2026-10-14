@@ -77,3 +77,30 @@ was on; display name and avatar URL to secure storage.
 
 Not done in Phase 3: native screens (Phase 4), merging the two duplicate profile screens, removing the old
 `AppColors`/`Elimu*` widgets, parent and teacher data endpoints (server side).
+
+## Phase 4a: native student screens on App API v1
+
+Switch: `AppConfig.appApiV1` (staging flavour on by default, prod off until the production cut-over;
+`--dart-define=APP_API_V1=true|false` overrides). With it off the router keeps the older Home and Learn screens.
+
+```
+lib/data/
+  api_call.dart        one request on ApiClient.appV1 -> Envelope, or an AppApiError
+  api_error.dart       sealed typed errors (offline, session expired, subscription required, lesson locked + reason,
+                       access expired, not found, validation, conflict question_answered, in flight, rate limited, ...);
+                       each has a friendly message, the server text is never shown
+  idempotency.dart     newIdempotencyKey() (UUID v4) and PendingAction: one key per user action, reused on retry
+  json.dart            strict readers (missing or wrong-typed required field -> ParseError, extra fields ignored)
+  models/              home, learning, lesson, account (questions, notifications, profile): built from the 2A/2B payloads
+  repositories/        Home, Learning, Lesson, Questions, Notifications, Account (+ AppRepositories.fromClient)
+lib/features/student/
+  load_controller.dart LoadController<T>: keeps the last data when a refresh fails (offline banner)
+  widgets/             LoadView (skeleton / error / data + banner), StudentScaffold, adaptive (ring + text at large sizes)
+  home/                Home (E-23)
+  learning/            My Learning Areas (E-24, E-26, E-87)
+lib/app/router/student_routes.dart  owns the controllers; areas and lessons open on the web (SSO webview) until 3c/3d
+```
+
+Tests: `test/data` (models and errors against `test/fixtures/app_api`, written from the payload code and the 2B test
+assertions), `test/features/student` (behaviour, an accessibility matrix of 3 themes x 3 text sizes, and goldens at
+360x780 dp in `test/features/student/goldens`).

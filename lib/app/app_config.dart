@@ -24,6 +24,7 @@ enum AppEnv { prod, staging }
 class AppConfig {
   const AppConfig({
     required this.env,
+    this.appApiV1 = false,
     this.a11yRemoteSync = false,
     this.tokenRefresh = false,
     this.appApiV1Login = false,
@@ -31,6 +32,9 @@ class AppConfig {
   });
 
   final AppEnv env;
+
+  /// The master switch: the native student screens read App API v1. Off, the older screens stay.
+  final bool appApiV1;
   final bool a11yRemoteSync;
   final bool tokenRefresh;
   final bool appApiV1Login;
@@ -94,6 +98,7 @@ class AppConfig {
     }
     return AppConfig(
       env: fromDefine,
+      appApiV1: appApiV1,
       a11yRemoteSync: appApiV1 || a11yRemoteSync,
       tokenRefresh: appApiV1 || tokenRefresh,
       appApiV1Login: appApiV1 || appApiV1Login,

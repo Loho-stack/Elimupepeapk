@@ -16,6 +16,7 @@ import '../../models/menu_item.dart';
 import '../app_services.dart';
 import '../menu/student_menu.dart';
 import '../session_controller.dart';
+import 'student_routes.dart';
 import '../shell/student_shell.dart';
 
 /// Static route names. They are what Analytics sees as the screen name, so
@@ -69,20 +70,24 @@ GoRouter buildRouter({
             GoRoute(
               path: '/student/home',
               name: RouteNames.studentHome,
-              builder: (context, state) => MainView(
-                onNavigate: (legacyIndex) =>
-                    _legacyNavigate(context, legacyIndex),
-              ),
+              builder: (context, state) => AppServices.instance.config.appApiV1
+                  ? StudentHomeRoute(repositories: AppServices.instance.repositories)
+                  : MainView(
+                      onNavigate: (legacyIndex) =>
+                          _legacyNavigate(context, legacyIndex),
+                    ),
             ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/student/learn',
               name: RouteNames.studentLearn,
-              builder: (context, state) => CategoryItemsScreen(
-                menuItem: MenuItem.getDefaultMenuItems()
-                    .firstWhere((m) => m.id == 'learning_areas'),
-              ),
+              builder: (context, state) => AppServices.instance.config.appApiV1
+                  ? LearningAreasRoute(repositories: AppServices.instance.repositories)
+                  : CategoryItemsScreen(
+                      menuItem: MenuItem.getDefaultMenuItems()
+                          .firstWhere((m) => m.id == 'learning_areas'),
+                    ),
             ),
           ]),
           StatefulShellBranch(routes: [

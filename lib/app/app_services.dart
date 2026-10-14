@@ -9,6 +9,7 @@ import '../core/auth/user_profile_store.dart';
 import '../core/services/webview_session_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/network/api_client.dart';
+import '../data/repositories/app_repositories.dart';
 import '../core/network/interceptors/connectivity_interceptor.dart';
 import 'app_config.dart';
 
@@ -59,6 +60,9 @@ class AppServices {
   final TokenStore tokenStore;
   final ApiClient apiClient;
   final SecureKv kv;
+
+  /// Repositories of App API v1 on the one [ApiClient]. Only used when [AppConfig.appApiV1] is on.
+  late final AppRepositories repositories = AppRepositories.fromClient(apiClient);
 
   /// Display name and avatar URL only (see UserProfileStore).
   final UserProfileStore profile;
