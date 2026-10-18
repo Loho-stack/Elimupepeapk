@@ -5,6 +5,7 @@ import 'package:elimupepe/app/app.dart';
 import 'package:elimupepe/app/app_config.dart';
 import 'package:elimupepe/app/app_services.dart';
 import 'package:elimupepe/core/theme/app_theme.dart';
+import 'package:elimupepe/features/quest/quest_pdf_cache.dart';
 import 'package:elimupepe/firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -92,6 +93,9 @@ class _AppBootstrapperState extends State<AppBootstrapper> {
     try {
       await AppServices.instance.runStartup();
     } catch (_) {}
+
+    // Elimu Quest book PDFs older than 7 days leave the cache. Not awaited: it must not delay start-up.
+    unawaited(QuestPdfCache.cleanStale());
 
     if (mounted) {
       setState(() {
