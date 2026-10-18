@@ -31,6 +31,7 @@ abstract final class RouteNames {
   static const questTerms = 'quest_terms';
   static const questProfile = 'quest_profile';
   static const questRead = 'quest_read';
+  static const questJourney = 'quest_journey';
   static const questCheckpoint = 'quest_checkpoint';
   static const questQuestions = 'quest_questions';
   static const studentLibrary = 'student_library';
@@ -141,6 +142,13 @@ GoRouter buildRouter({
                     session: state.extra! as MsafaraSession,
                     day: int.parse(state.pathParameters['day']!),
                   ),
+                ),
+                GoRoute(
+                  path: 'journey',
+                  name: RouteNames.questJourney,
+                  parentNavigatorKey: navigatorKey,
+                  redirect: _needsQuestSession,
+                  builder: (context, state) => QuestJourneyRoute(session: state.extra! as MsafaraSession),
                 ),
                 GoRoute(
                   path: 'profile',

@@ -5,9 +5,11 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../core/services/remote_app_config.dart';
 import '../../core/design/clay.dart';
 import '../../core/webview/sso_webview.dart';
+import '../../data/models/msafara_journey.dart';
 import '../../data/models/msafara_quests.dart';
 import '../../features/quest/checkpoint_controller.dart';
 import '../../features/quest/checkpoint_page.dart';
+import '../../features/quest/journey_page.dart';
 import '../../features/quest/profile_page.dart';
 import '../../features/quest/quest_gate.dart';
 import '../../features/quest/quest_home_page.dart';
@@ -134,6 +136,7 @@ class _QuestHomeHostState extends State<QuestHomeHost> {
           ),
           openBonus: () => _open('/student/quest/questions/6'),
           openCheckpoint: (day) => _open('/student/quest/checkpoint/$day'),
+          openJourney: () => _open('/student/quest/journey'),
         ),
       );
 }
@@ -309,4 +312,40 @@ class _QuestCheckpointRouteState extends State<QuestCheckpointRoute> {
   @override
   Widget build(BuildContext context) =>
       CheckpointPage(session: widget.session, controller: _controller, onClose: _close);
+}
+
+/// The journey: map and list of the 92 towns.
+class QuestJourneyRoute extends StatefulWidget {
+  const QuestJourneyRoute({super.key, required this.session});
+  final MsafaraSession session;
+
+  @override
+  State<QuestJourneyRoute> createState() => _QuestJourneyRouteState();
+}
+
+class _QuestJourneyRouteState extends State<QuestJourneyRoute> {
+  late final LoadController<Journey> _journey = LoadController(_fetch)..load();
+
+  Future<Journey> _fetch() async {
+    try {
+      return await widget.session.repo.journey();
+    } catch (e) {
+      // 409 not_started and the other gates: the state screen takes over.
+      if (widget.session.handleError(e) && mounted && context.canPop()) context.pop();
+      rethrow;
+    }
+  }
+
+  @override
+  void dispose() {
+    _journey.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => JourneyPage(
+        session: widget.session,
+        controller: _journey,
+        onOpenCheckpoint: (day) => context.push('/student/quest/checkpoint/$day', extra: widget.session),
+      );
 }

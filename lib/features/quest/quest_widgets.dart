@@ -15,6 +15,19 @@ String formatEatDate(DateTime instant, String lang) {
   return '${eat.day} $month ${eat.year}';
 }
 
+/// A `YYYY-MM-DD` date the API sends for an EAT day ("30 Oct 2026"). Unreadable input is returned as is.
+String formatDay(String ymd, String lang) {
+  final parts = ymd.split('-');
+  if (parts.length != 3) return ymd;
+  final y = int.tryParse(parts[0]);
+  final m = int.tryParse(parts[1]);
+  final d = int.tryParse(parts[2]);
+  if (y == null || m == null || d == null || m < 1 || m > 12) return ymd;
+  const en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const sw = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ago', 'Sep', 'Okt', 'Nov', 'Des'];
+  return '$d ${(lang == 'sw' ? sw : en)[m - 1]} $y';
+}
+
 /// 10.0 -> "10", 7.5 -> "7.5".
 String formatKm(double km) => km == km.roundToDouble() ? km.toInt().toString() : km.toStringAsFixed(1);
 

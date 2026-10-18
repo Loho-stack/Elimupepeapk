@@ -6,6 +6,7 @@ import '../models/learning.dart';
 import '../models/lesson.dart';
 import '../models/msafara.dart';
 import '../models/msafara_checkpoint.dart';
+import '../models/msafara_journey.dart';
 import '../models/msafara_quests.dart';
 
 Paged<T> _paged<T>(Envelope e, T Function(Map<String, dynamic>) parse) {
@@ -280,6 +281,12 @@ class MsafaraRepository {
         body: {'question_id': questionId, if (choice != null) 'choice': choice, if (text != null) 'text': text},
         idempotencyKey: key);
     return parsed(() => AnswerResult.fromJson(e.object));
+  }
+
+  /// The 92 towns in campaign-day order. 409 `not_started` before Day 1.
+  Future<Journey> journey() async {
+    final e = await _api.get('/msafara/journey');
+    return parsed(() => Journey.fromJson(e.object));
   }
 
   /// Today's checkpoint, or the one of [day] (0 is Launch Day). 404: none for this learner's band.
