@@ -156,6 +156,7 @@ void main() {
       expect(find.text('Day 1 · 19 Oct 2026 · Visited'), findsOneWidget);
       expect(find.text('Town 12'), findsOneWidget);
       expect(find.textContaining('Today'), findsWidgets);
+      await tester.scrollUntilVisible(find.textContaining('GeoNames'), 500, scrollable: find.byType(Scrollable).first);
       expect(find.textContaining('GeoNames'), findsOneWidget);
     });
 

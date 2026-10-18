@@ -1,8 +1,10 @@
 import 'package:elimupepe/core/design/clay.dart';
+import 'package:elimupepe/features/quest/boards_page.dart';
 import 'package:elimupepe/features/quest/quest_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'boards_test.dart' show BRig;
 import 'support.dart';
 
 /// Goldens of the Elimu Quest screens at 360x780 dp (rendered at 2x), reduced motion on.
@@ -55,4 +57,28 @@ void main() {
     await golden(tester, 'countdown_reserved_sw', QuestRig((o) => ok('state_countdown'), lang: 'sw'),
         mode: ClayThemeMode.light, scale: 1.0, screen: gate);
   });
+
+  for (final (mode, scale) in [
+    (ClayThemeMode.light, 1.0),
+    (ClayThemeMode.light, 2.0),
+    (ClayThemeMode.dark, 1.0),
+  ]) {
+    testWidgets('boards [${mode.name} x$scale]', (tester) async {
+      final r = BRig();
+      await r.daily.load();
+      await withShadows(() async {
+        setPhone(tester, dpr: 2.0);
+        await tester.pumpWidget(screenApp(
+          BoardsPage(session: r.session, daily: r.daily, weekly: r.weekly),
+          options: ClayThemeOptions(mode: mode, reduceMotion: true),
+          textScale: scale,
+        ));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+        await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/boards_${goldenKey(mode, scale)}.png'));
+      });
+      r.daily.dispose();
+      r.weekly.dispose();
+    });
+  }
 }
