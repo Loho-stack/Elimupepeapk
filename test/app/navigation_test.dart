@@ -220,7 +220,7 @@ void main() {
         'Support',
       ]);
       expect(StudentMenu.groups[0].entries.map((e) => e.label),
-          ['Dashboard', 'Msafara']);
+          ['Dashboard', 'Elimu Quest']);
       expect(StudentMenu.groups[1].entries.map((e) => e.label), [
         'My Learning Areas',
         'Interactive Content',

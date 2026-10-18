@@ -93,11 +93,11 @@ abstract final class StudentMenu {
       ),
       MenuEntry(
         id: 'msafara',
-        label: 'Msafara',
+        label: 'Elimu Quest',
         icon: ClayIcons.msafara,
-        target: WebTarget('/msafara'),
-        verdict: Verdict.webview,
-        note: 'Native in a later phase; needs consent endpoints first.',
+        target: RouteTarget('/student/quest'),
+        verdict: Verdict.native,
+        note: 'Native on App API v1; falls back to the website (/msafara) when it is off.',
       ),
     ]),
     MenuGroup('Learn', [

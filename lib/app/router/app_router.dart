@@ -16,6 +16,8 @@ import '../../models/menu_item.dart';
 import '../app_services.dart';
 import '../menu/student_menu.dart';
 import '../session_controller.dart';
+import '../../features/quest/quest_session.dart';
+import 'quest_routes.dart';
 import 'student_routes.dart';
 import '../shell/student_shell.dart';
 
@@ -26,6 +28,8 @@ abstract final class RouteNames {
   static const studentHome = 'student_home';
   static const studentLearn = 'student_learn';
   static const studentQuest = 'student_quest';
+  static const questTerms = 'quest_terms';
+  static const questProfile = 'quest_profile';
   static const studentLibrary = 'student_library';
   static const studentProfile = 'student_profile';
   static const studentQuestHub = 'student_quest_hub';
@@ -94,12 +98,25 @@ GoRouter buildRouter({
             GoRoute(
               path: '/student/quest',
               name: RouteNames.studentQuest,
-              builder: (context, state) => SsoWebViewScreen(
-                title: 'Elimu Quest',
-                path: '/my-quizzes',
-                onRootBack: () => StatefulNavigationShell.of(context)
-                    .goBranch(StudentMenu.homeBranch),
-              ),
+              builder: (context, state) => AppServices.instance.config.appApiV1
+                  ? QuestRoute(services: AppServices.instance)
+                  : const QuestWebRoute(),
+              routes: [
+                GoRoute(
+                  path: 'terms',
+                  name: RouteNames.questTerms,
+                  parentNavigatorKey: navigatorKey,
+                  redirect: _needsQuestSession,
+                  builder: (context, state) => QuestTermsRoute(session: state.extra! as MsafaraSession),
+                ),
+                GoRoute(
+                  path: 'profile',
+                  name: RouteNames.questProfile,
+                  parentNavigatorKey: navigatorKey,
+                  redirect: _needsQuestSession,
+                  builder: (context, state) => QuestProfileRoute(session: state.extra! as MsafaraSession),
+                ),
+              ],
             ),
           ]),
           StatefulShellBranch(routes: [
@@ -195,6 +212,10 @@ GoRouter buildRouter({
     ],
   );
 }
+
+/// Pushed Elimu Quest screens need the session of the tab; without it (a cold deep link) go to the tab.
+String? _needsQuestSession(BuildContext context, GoRouterState state) =>
+    state.extra is MsafaraSession ? null : '/student/quest';
 
 /// The redirect rule, separate from the router so it can be tested.
 String? redirectFor(SessionController session, String location) {
