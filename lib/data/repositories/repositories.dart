@@ -8,6 +8,7 @@ import '../models/msafara.dart';
 import '../models/msafara_boards.dart';
 import '../models/msafara_checkpoint.dart';
 import '../models/msafara_journey.dart';
+import '../models/msafara_me.dart';
 import '../models/msafara_quests.dart';
 
 Paged<T> _paged<T>(Envelope e, T Function(Map<String, dynamic>) parse) {
@@ -288,6 +289,23 @@ class MsafaraRepository {
   Future<Journey> journey() async {
     final e = await _api.get('/msafara/journey');
     return parsed(() => Journey.fromJson(e.object));
+  }
+
+  Future<MeData> me() async {
+    final e = await _api.get('/msafara/me');
+    return parsed(() => MeData.fromJson(e.object));
+  }
+
+  /// Open before Day 1. Returns the sound setting after the call.
+  Future<bool> setSound(bool on, {required String key}) async {
+    final e = await _api.post('/msafara/me/sound', body: {'sound': on ? 'on' : 'off'}, idempotencyKey: key);
+    return parsed(() => e.object.str('sound') == 'on');
+  }
+
+  /// Needs the boards to be on (404 otherwise). Returns whether the name is hidden after the call.
+  Future<bool> setHideName(bool hide, {required String key}) async {
+    final e = await _api.post('/msafara/me/hide-name', body: {'hide': hide ? 'yes' : 'no'}, idempotencyKey: key);
+    return parsed(() => e.object.boolean('hide_name'));
   }
 
   /// [name] is `daily` or `weekly`. 404 when the boards are switched off.

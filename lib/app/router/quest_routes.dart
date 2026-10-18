@@ -7,11 +7,13 @@ import '../../core/design/clay.dart';
 import '../../core/webview/sso_webview.dart';
 import '../../data/models/msafara_boards.dart';
 import '../../data/models/msafara_journey.dart';
+import '../../data/models/msafara_me.dart';
 import '../../data/models/msafara_quests.dart';
 import '../../features/quest/boards_page.dart';
 import '../../features/quest/checkpoint_controller.dart';
 import '../../features/quest/checkpoint_page.dart';
 import '../../features/quest/journey_page.dart';
+import '../../features/quest/me_page.dart';
 import '../../features/quest/profile_page.dart';
 import '../../features/quest/quest_gate.dart';
 import '../../features/quest/quest_home_page.dart';
@@ -140,6 +142,7 @@ class _QuestHomeHostState extends State<QuestHomeHost> {
           openCheckpoint: (day) => _open('/student/quest/checkpoint/$day'),
           openJourney: () => _open('/student/quest/journey'),
           openBoards: () => _open('/student/quest/boards'),
+          openMe: () => _open('/student/quest/me'),
         ),
       );
 }
@@ -384,4 +387,48 @@ class _QuestBoardsRouteState extends State<QuestBoardsRoute> {
 
   @override
   Widget build(BuildContext context) => BoardsPage(session: widget.session, daily: _daily, weekly: _weekly);
+}
+
+/// Me: the learner's details, the hide-name and sound switches, and the terms.
+class QuestMeRoute extends StatefulWidget {
+  const QuestMeRoute({super.key, required this.session});
+  final MsafaraSession session;
+
+  @override
+  State<QuestMeRoute> createState() => _QuestMeRouteState();
+}
+
+class _QuestMeRouteState extends State<QuestMeRoute> {
+  late final LoadController<MeData> _me = LoadController(_fetch)..load();
+
+  Future<MeData> _fetch() async {
+    try {
+      return await widget.session.repo.me();
+    } catch (e) {
+      if (widget.session.handleError(e) && mounted && context.canPop()) context.pop();
+      rethrow;
+    }
+  }
+
+  @override
+  void dispose() {
+    _me.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => MePage(
+        session: widget.session,
+        controller: _me,
+        onOpenTerms: () => context.push('/student/quest/terms-view', extra: widget.session),
+      );
+}
+
+/// The terms again, read only.
+class QuestTermsViewRoute extends StatelessWidget {
+  const QuestTermsViewRoute({super.key, required this.session});
+  final MsafaraSession session;
+
+  @override
+  Widget build(BuildContext context) => TermsPage(session: session, readOnly: true);
 }

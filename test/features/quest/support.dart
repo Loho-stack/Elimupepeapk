@@ -6,6 +6,7 @@ import 'package:elimupepe/data/api_call.dart';
 import 'package:elimupepe/data/api_error.dart';
 import 'package:elimupepe/data/models/msafara.dart';
 import 'package:elimupepe/data/models/msafara_checkpoint.dart';
+import 'package:elimupepe/data/models/msafara_me.dart';
 import 'package:elimupepe/data/models/msafara_quests.dart';
 import 'package:elimupepe/data/repositories/repositories.dart';
 import 'package:elimupepe/features/quest/quest_session.dart';
@@ -85,6 +86,41 @@ class FakeQuestRepo extends MsafaraRepository {
     final r = questionsReply();
     if (r is AppApiError) throw r;
     return r as QuestionSet;
+  }
+
+  @override
+  Future<Terms> terms({String lang = 'en'}) async => Terms.fromJson(data('terms'));
+
+  /// What the next `me` call answers: a [MeData] or an [AppApiError].
+  Object Function() meReply = () => MeData.fromJson(data('me'));
+
+  @override
+  Future<MeData> me() async {
+    final r = meReply();
+    if (r is AppApiError) throw r;
+    return r as MeData;
+  }
+
+  /// The replies of the next switch changes, in order: the new value (bool) or an [AppApiError].
+  final soundReplies = <Object>[];
+  final hideReplies = <Object>[];
+  final soundCalls = <({bool on, String key})>[];
+  final hideCalls = <({bool hide, String key})>[];
+
+  @override
+  Future<bool> setSound(bool on, {required String key}) async {
+    soundCalls.add((on: on, key: key));
+    final r = soundReplies.removeAt(0);
+    if (r is AppApiError) throw r;
+    return r as bool;
+  }
+
+  @override
+  Future<bool> setHideName(bool hide, {required String key}) async {
+    hideCalls.add((hide: hide, key: key));
+    final r = hideReplies.removeAt(0);
+    if (r is AppApiError) throw r;
+    return r as bool;
   }
 
   /// What the next `checkpoint` call answers: a [Checkpoint] or an [AppApiError].

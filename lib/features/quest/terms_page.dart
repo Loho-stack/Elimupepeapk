@@ -12,7 +12,7 @@ import 'quest_widgets.dart';
 /// The Elimu Quest terms. The text is DP-approved and comes only from `GET /msafara/terms`; this page
 /// adds the two attestation boxes the server sends and posts both as `true`.
 class TermsPage extends StatefulWidget {
-  const TermsPage({super.key, required this.session, this.onDone, this.showBar = true});
+  const TermsPage({super.key, required this.session, this.onDone, this.showBar = true, this.readOnly = false});
   final MsafaraSession session;
 
   /// Called after the terms were accepted and the state refreshed.
@@ -20,6 +20,9 @@ class TermsPage extends StatefulWidget {
 
   /// False when the page sits inside another scaffold.
   final bool showBar;
+
+  /// Only the text: no boxes and no Continue (reading the terms again from Me).
+  final bool readOnly;
 
   @override
   State<TermsPage> createState() => _TermsPageState();
@@ -130,6 +133,8 @@ class _TermsPageState extends State<TermsPage> {
               ),
             ),
         ],
+        if (widget.readOnly) const SizedBox(height: ClaySpace.s4),
+        if (!widget.readOnly) ...[
         const SizedBox(height: ClaySpace.s5),
         ClayCard(
           tone: ClayCardTone.soft,
@@ -166,6 +171,7 @@ class _TermsPageState extends State<TermsPage> {
           loading: _busy,
           onPressed: allTicked && !_busy ? () => _accept(t) : null,
         ),
+        ],
       ],
     );
   }
