@@ -5,6 +5,7 @@ import '../models/home.dart';
 import '../models/learning.dart';
 import '../models/lesson.dart';
 import '../models/msafara.dart';
+import '../models/msafara_checkpoint.dart';
 import '../models/msafara_quests.dart';
 
 Paged<T> _paged<T>(Envelope e, T Function(Map<String, dynamic>) parse) {
@@ -279,5 +280,17 @@ class MsafaraRepository {
         body: {'question_id': questionId, if (choice != null) 'choice': choice, if (text != null) 'text': text},
         idempotencyKey: key);
     return parsed(() => AnswerResult.fromJson(e.object));
+  }
+
+  /// Today's checkpoint, or the one of [day] (0 is Launch Day). 404: none for this learner's band.
+  Future<Checkpoint> checkpoint({int? day}) async {
+    final e = await _api.get(day == null ? '/msafara/checkpoint' : '/msafara/checkpoint/$day');
+    return parsed(() => Checkpoint.fromJson(e.object));
+  }
+
+  ///409 `checkpoint_locked`, `checkpoint_closed` and `already_answered` are [ConflictError]s.
+  Future<CheckpointResult> answerCheckpoint(int day, {required String option, required String key}) async {
+    final e = await _api.post('/msafara/checkpoint/$day', body: {'option': option}, idempotencyKey: key);
+    return parsed(() => CheckpointResult.fromJson(e.object));
   }
 }

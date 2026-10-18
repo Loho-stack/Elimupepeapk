@@ -31,6 +31,7 @@ abstract final class RouteNames {
   static const questTerms = 'quest_terms';
   static const questProfile = 'quest_profile';
   static const questRead = 'quest_read';
+  static const questCheckpoint = 'quest_checkpoint';
   static const questQuestions = 'quest_questions';
   static const studentLibrary = 'student_library';
   static const studentProfile = 'student_profile';
@@ -129,6 +130,16 @@ GoRouter buildRouter({
                   builder: (context, state) => QuestQuestionsRoute(
                     session: state.extra! as MsafaraSession,
                     no: int.parse(state.pathParameters['no']!),
+                  ),
+                ),
+                GoRoute(
+                  path: 'checkpoint/:day',
+                  name: RouteNames.questCheckpoint,
+                  parentNavigatorKey: navigatorKey,
+                  redirect: _needsQuestSessionAndDay,
+                  builder: (context, state) => QuestCheckpointRoute(
+                    session: state.extra! as MsafaraSession,
+                    day: int.parse(state.pathParameters['day']!),
                   ),
                 ),
                 GoRoute(
@@ -243,6 +254,12 @@ String? _needsQuestSession(BuildContext context, GoRouterState state) =>
 String? _needsQuestSessionAndNo(BuildContext context, GoRouterState state) {
   final no = int.tryParse(state.pathParameters['no'] ?? '');
   return state.extra is MsafaraSession && no != null && no >= 1 && no <= 6 ? null : '/student/quest';
+}
+
+/// Checkpoint screens need a day from 0 (Launch Day) to 92.
+String? _needsQuestSessionAndDay(BuildContext context, GoRouterState state) {
+  final day = int.tryParse(state.pathParameters['day'] ?? '');
+  return state.extra is MsafaraSession && day != null && day >= 0 && day <= 92 ? null : '/student/quest';
 }
 
 /// The redirect rule, separate from the router so it can be tested.

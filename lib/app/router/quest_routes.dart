@@ -6,6 +6,8 @@ import '../../core/services/remote_app_config.dart';
 import '../../core/design/clay.dart';
 import '../../core/webview/sso_webview.dart';
 import '../../data/models/msafara_quests.dart';
+import '../../features/quest/checkpoint_controller.dart';
+import '../../features/quest/checkpoint_page.dart';
 import '../../features/quest/profile_page.dart';
 import '../../features/quest/quest_gate.dart';
 import '../../features/quest/quest_home_page.dart';
@@ -131,6 +133,7 @@ class _QuestHomeHostState extends State<QuestHomeHost> {
             '/student/quest/${card.completed || card.unlocked ? 'questions' : 'read'}/${card.no}',
           ),
           openBonus: () => _open('/student/quest/questions/6'),
+          openCheckpoint: (day) => _open('/student/quest/checkpoint/$day'),
         ),
       );
 }
@@ -271,4 +274,39 @@ class QuestProfileRoute extends StatelessWidget {
           if (context.canPop()) context.pop();
         },
       );
+}
+
+/// The checkpoint of one day.
+class QuestCheckpointRoute extends StatefulWidget {
+  const QuestCheckpointRoute({super.key, required this.session, required this.day});
+  final MsafaraSession session;
+  final int day;
+
+  @override
+  State<QuestCheckpointRoute> createState() => _QuestCheckpointRouteState();
+}
+
+class _QuestCheckpointRouteState extends State<QuestCheckpointRoute> {
+  late final CheckpointController _controller = CheckpointController(
+    repo: widget.session.repo,
+    day: widget.day,
+    onGate: (e) {
+      widget.session.handleError(e);
+      _close();
+    },
+  )..load();
+
+  void _close() {
+    if (mounted && context.canPop()) context.pop();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      CheckpointPage(session: widget.session, controller: _controller, onClose: _close);
 }

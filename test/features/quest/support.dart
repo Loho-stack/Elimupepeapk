@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:elimupepe/data/api_call.dart';
 import 'package:elimupepe/data/api_error.dart';
 import 'package:elimupepe/data/models/msafara.dart';
+import 'package:elimupepe/data/models/msafara_checkpoint.dart';
 import 'package:elimupepe/data/models/msafara_quests.dart';
 import 'package:elimupepe/data/repositories/repositories.dart';
 import 'package:elimupepe/features/quest/quest_session.dart';
@@ -84,6 +85,30 @@ class FakeQuestRepo extends MsafaraRepository {
     final r = questionsReply();
     if (r is AppApiError) throw r;
     return r as QuestionSet;
+  }
+
+  /// What the next `checkpoint` call answers: a [Checkpoint] or an [AppApiError].
+  Object Function() checkpointReply = () => Checkpoint.fromJson(data('checkpoint'));
+  int checkpointCalls = 0;
+
+  @override
+  Future<Checkpoint> checkpoint({int? day}) async {
+    checkpointCalls++;
+    final r = checkpointReply();
+    if (r is AppApiError) throw r;
+    return r as Checkpoint;
+  }
+
+  /// The replies of the next checkpoint answers, in order.
+  final checkpointAnswerReplies = <Object>[];
+  final checkpointAnswers = <({int day, String option, String key})>[];
+
+  @override
+  Future<CheckpointResult> answerCheckpoint(int day, {required String option, required String key}) async {
+    checkpointAnswers.add((day: day, option: option, key: key));
+    final r = checkpointAnswerReplies.removeAt(0);
+    if (r is AppApiError) throw r;
+    return r as CheckpointResult;
   }
 
   /// The replies of the next answers, in order: an [AnswerResult] or an [AppApiError].
