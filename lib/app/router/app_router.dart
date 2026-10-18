@@ -30,6 +30,8 @@ abstract final class RouteNames {
   static const studentQuest = 'student_quest';
   static const questTerms = 'quest_terms';
   static const questProfile = 'quest_profile';
+  static const questRead = 'quest_read';
+  static const questQuestions = 'quest_questions';
   static const studentLibrary = 'student_library';
   static const studentProfile = 'student_profile';
   static const studentQuestHub = 'student_quest_hub';
@@ -108,6 +110,26 @@ GoRouter buildRouter({
                   parentNavigatorKey: navigatorKey,
                   redirect: _needsQuestSession,
                   builder: (context, state) => QuestTermsRoute(session: state.extra! as MsafaraSession),
+                ),
+                GoRoute(
+                  path: 'read/:no',
+                  name: RouteNames.questRead,
+                  parentNavigatorKey: navigatorKey,
+                  redirect: _needsQuestSessionAndNo,
+                  builder: (context, state) => QuestReadRoute(
+                    session: state.extra! as MsafaraSession,
+                    no: int.parse(state.pathParameters['no']!),
+                  ),
+                ),
+                GoRoute(
+                  path: 'questions/:no',
+                  name: RouteNames.questQuestions,
+                  parentNavigatorKey: navigatorKey,
+                  redirect: _needsQuestSessionAndNo,
+                  builder: (context, state) => QuestQuestionsRoute(
+                    session: state.extra! as MsafaraSession,
+                    no: int.parse(state.pathParameters['no']!),
+                  ),
                 ),
                 GoRoute(
                   path: 'profile',
@@ -216,6 +238,12 @@ GoRouter buildRouter({
 /// Pushed Elimu Quest screens need the session of the tab; without it (a cold deep link) go to the tab.
 String? _needsQuestSession(BuildContext context, GoRouterState state) =>
     state.extra is MsafaraSession ? null : '/student/quest';
+
+/// Quest screens also need a quest number from 1 to 6.
+String? _needsQuestSessionAndNo(BuildContext context, GoRouterState state) {
+  final no = int.tryParse(state.pathParameters['no'] ?? '');
+  return state.extra is MsafaraSession && no != null && no >= 1 && no <= 6 ? null : '/student/quest';
+}
 
 /// The redirect rule, separate from the router so it can be tested.
 String? redirectFor(SessionController session, String location) {
