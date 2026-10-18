@@ -15,6 +15,9 @@ String formatEatDate(DateTime instant, String lang) {
   return '${eat.day} $month ${eat.year}';
 }
 
+/// 10.0 -> "10", 7.5 -> "7.5".
+String formatKm(double km) => km == km.roundToDouble() ? km.toInt().toString() : km.toStringAsFixed(1);
+
 /// The page frame of every Elimu Quest screen.
 class QuestScaffold extends StatelessWidget {
   const QuestScaffold({super.key, required this.title, required this.body, this.actions = const [], this.leading});

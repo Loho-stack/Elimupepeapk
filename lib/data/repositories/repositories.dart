@@ -5,6 +5,7 @@ import '../models/home.dart';
 import '../models/learning.dart';
 import '../models/lesson.dart';
 import '../models/msafara.dart';
+import '../models/msafara_quests.dart';
 
 Paged<T> _paged<T>(Envelope e, T Function(Map<String, dynamic>) parse) {
   final meta = e.meta ?? const <String, dynamic>{};
@@ -239,5 +240,44 @@ class MsafaraRepository {
     final e = await _api.post('/msafara/profile',
         body: {if (grade != null) 'grade': grade, if (county != null) 'county': county}, idempotencyKey: key);
     return parsed(() => ProfileResult.fromJson(e.object));
+  }
+
+  Future<QuestHome> home() async {
+    final e = await _api.get('/msafara/home');
+    return parsed(() => QuestHome.fromJson(e.object));
+  }
+
+  Future<QuestList> quests() async {
+    final e = await _api.get('/msafara/quests');
+    return parsed(() => QuestList.fromJson(e.object));
+  }
+
+  /// [no] is 1 to 5, or 6 for the bonus.
+  Future<QuestDetail> quest(int no) async {
+    final e = await _api.get('/msafara/quests/$no');
+    return parsed(() => QuestDetail.fromJson(e.object));
+  }
+
+  /// A reading ping. The server measures the time; a fresh [key] goes with every ping. [page] is
+  /// 1-based and only for book quests. No 429 retry: a ping that is refused is skipped.
+  Future<QuestLock> ping(int no, {int? page, required String key}) async {
+    final e = await _api.post('/msafara/quests/$no/ping',
+        body: {if (page != null) 'page': page}, idempotencyKey: key, retry: false);
+    return parsed(() => QuestLock.fromJson(e.object));
+  }
+
+  /// A 409 `quest_locked` (a [QuestLockedError]) means the reading is not done.
+  Future<QuestionSet> questions(int no) async {
+    final e = await _api.get('/msafara/quests/$no/questions');
+    return parsed(() => QuestionSet.fromJson(e.object));
+  }
+
+  /// [choice] is the option number from 1 (mcq, true_false); [text] is one word (fill_blank).
+  Future<AnswerResult> answer(int no,
+      {required int questionId, int? choice, String? text, required String key}) async {
+    final e = await _api.post('/msafara/quests/$no/answer',
+        body: {'question_id': questionId, if (choice != null) 'choice': choice, if (text != null) 'text': text},
+        idempotencyKey: key);
+    return parsed(() => AnswerResult.fromJson(e.object));
   }
 }

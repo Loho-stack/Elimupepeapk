@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:elimupepe/data/api_call.dart';
+import 'package:elimupepe/data/api_error.dart';
+import 'package:elimupepe/data/models/msafara.dart';
+import 'package:elimupepe/data/models/msafara_quests.dart';
 import 'package:elimupepe/data/repositories/repositories.dart';
 import 'package:elimupepe/features/quest/quest_session.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -48,6 +51,52 @@ class QuestRig {
 
   Iterable<RequestOptions> calls(String method, String path) =>
       adapter.seen.where((o) => o.method == method && o.path == path);
+}
+
+/// A repository whose quest calls answer from the test, without Dio, so widget tests need no real async.
+class FakeQuestRepo extends MsafaraRepository {
+  FakeQuestRepo() : super(ApiCall(Dio()));
+
+  @override
+  Future<MsafaraState> state() async => MsafaraState.fromJson(data('state_active'));
+
+  final pingPages = <int?>[];
+  final pingKeys = <String>[];
+
+  /// What the n-th ping (1-based) answers: a [QuestLock] or an [AppApiError].
+  Object Function(int n) pingReply = (n) => QuestLock.fromJson(data('ping'));
+
+  @override
+  Future<QuestLock> ping(int no, {int? page, required String key}) async {
+    pingPages.add(page);
+    pingKeys.add(key);
+    final r = pingReply(pingPages.length);
+    if (r is AppApiError) throw r;
+    return r as QuestLock;
+  }
+
+  Object Function() questionsReply = () => QuestionSet.fromJson(data('questions'));
+  int questionsCalls = 0;
+
+  @override
+  Future<QuestionSet> questions(int no) async {
+    questionsCalls++;
+    final r = questionsReply();
+    if (r is AppApiError) throw r;
+    return r as QuestionSet;
+  }
+
+  /// The replies of the next answers, in order: an [AnswerResult] or an [AppApiError].
+  final answerReplies = <Object>[];
+  final answers = <({int questionId, int? choice, String? text, String key})>[];
+
+  @override
+  Future<AnswerResult> answer(int no, {required int questionId, int? choice, String? text, required String key}) async {
+    answers.add((questionId: questionId, choice: choice, text: text, key: key));
+    final r = answerReplies.removeAt(0);
+    if (r is AppApiError) throw r;
+    return r as AnswerResult;
+  }
 }
 
 /// Dio needs the real event loop; this lets pending requests finish, then draws a frame.
