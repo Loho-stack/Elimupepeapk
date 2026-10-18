@@ -5,6 +5,7 @@ import '../models/home.dart';
 import '../models/learning.dart';
 import '../models/lesson.dart';
 import '../models/msafara.dart';
+import '../models/msafara_boards.dart';
 import '../models/msafara_checkpoint.dart';
 import '../models/msafara_journey.dart';
 import '../models/msafara_quests.dart';
@@ -287,6 +288,12 @@ class MsafaraRepository {
   Future<Journey> journey() async {
     final e = await _api.get('/msafara/journey');
     return parsed(() => Journey.fromJson(e.object));
+  }
+
+  /// [name] is `daily` or `weekly`. 404 when the boards are switched off.
+  Future<Board> board(String name) async {
+    final e = await _api.get('/msafara/boards/$name');
+    return parsed(() => Board.fromJson(e.object));
   }
 
   /// Today's checkpoint, or the one of [day] (0 is Launch Day). 404: none for this learner's band.

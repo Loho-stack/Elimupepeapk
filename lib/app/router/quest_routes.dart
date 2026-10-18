@@ -5,8 +5,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../core/services/remote_app_config.dart';
 import '../../core/design/clay.dart';
 import '../../core/webview/sso_webview.dart';
+import '../../data/models/msafara_boards.dart';
 import '../../data/models/msafara_journey.dart';
 import '../../data/models/msafara_quests.dart';
+import '../../features/quest/boards_page.dart';
 import '../../features/quest/checkpoint_controller.dart';
 import '../../features/quest/checkpoint_page.dart';
 import '../../features/quest/journey_page.dart';
@@ -137,6 +139,7 @@ class _QuestHomeHostState extends State<QuestHomeHost> {
           openBonus: () => _open('/student/quest/questions/6'),
           openCheckpoint: (day) => _open('/student/quest/checkpoint/$day'),
           openJourney: () => _open('/student/quest/journey'),
+          openBoards: () => _open('/student/quest/boards'),
         ),
       );
 }
@@ -348,4 +351,37 @@ class _QuestJourneyRouteState extends State<QuestJourneyRoute> {
         controller: _journey,
         onOpenCheckpoint: (day) => context.push('/student/quest/checkpoint/$day', extra: widget.session),
       );
+}
+
+/// The daily and weekly boards. The weekly one loads when its tab is first opened.
+class QuestBoardsRoute extends StatefulWidget {
+  const QuestBoardsRoute({super.key, required this.session});
+  final MsafaraSession session;
+
+  @override
+  State<QuestBoardsRoute> createState() => _QuestBoardsRouteState();
+}
+
+class _QuestBoardsRouteState extends State<QuestBoardsRoute> {
+  late final LoadController<Board> _daily = LoadController(() => _fetch('daily'))..load();
+  late final LoadController<Board> _weekly = LoadController(() => _fetch('weekly'));
+
+  Future<Board> _fetch(String name) async {
+    try {
+      return await widget.session.repo.board(name);
+    } catch (e) {
+      if (widget.session.handleError(e) && mounted && context.canPop()) context.pop();
+      rethrow;
+    }
+  }
+
+  @override
+  void dispose() {
+    _daily.dispose();
+    _weekly.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => BoardsPage(session: widget.session, daily: _daily, weekly: _weekly);
 }
