@@ -46,9 +46,10 @@ class ApiCall {
       _send('DELETE', path, body: body);
 
   /// POST with an Idempotency-Key. Marked retryable so the 429 back-off may
-  /// replay it: the key makes that safe.
-  Future<Envelope> post(String path, {Object? body, String? idempotencyKey}) =>
-      _send('POST', path, body: body, idempotencyKey: idempotencyKey);
+  /// replay it: the key makes that safe. [retry] false hands a 429 straight
+  /// back (reading pings, which are better skipped than delayed).
+  Future<Envelope> post(String path, {Object? body, String? idempotencyKey, bool retry = true}) =>
+      _send('POST', path, body: body, idempotencyKey: idempotencyKey, retry: retry);
 
   Future<Envelope> _send(
     String method,
@@ -56,6 +57,7 @@ class ApiCall {
     Map<String, dynamic>? query,
     Object? body,
     String? idempotencyKey,
+    bool retry = true,
   }) async {
     try {
       final response = await _dio.request<dynamic>(
@@ -65,7 +67,7 @@ class ApiCall {
         options: Options(
           method: method,
           headers: {if (idempotencyKey != null) 'Idempotency-Key': idempotencyKey},
-          extra: {if (idempotencyKey != null) 'retryable': true},
+          extra: {if (idempotencyKey != null && retry) 'retryable': true},
         ),
       );
       final raw = response.data;

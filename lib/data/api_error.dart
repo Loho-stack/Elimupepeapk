@@ -48,7 +48,9 @@ sealed class AppApiError implements Exception {
     final status = response.statusCode ?? 0;
     final body = response.data;
     final map = body is Map ? Map<String, dynamic>.from(body) : const <String, dynamic>{};
-    final code = map['error_code'] is String ? map['error_code'] as String : null;
+    // Student endpoints send `error_code`; the Msafara endpoints send `code`.
+    final rawCode = map['error_code'] ?? map['code'];
+    final code = rawCode is String ? rawCode : null;
     final errors = _fieldErrors(map['errors']);
 
     switch (status) {
@@ -65,7 +67,18 @@ sealed class AppApiError implements Exception {
         return const NotFoundError();
       case 409:
         // 409 without a code is the Idempotency-Key "request in progress" answer.
-        return code == null ? const InFlightError() : ConflictError(code: code);
+        if (code == null) return const InFlightError();
+        if (MsafaraGateError.codes.contains(code)) {
+          return MsafaraGateError(
+            code: code,
+            missing: [if (map['missing'] is List) ...(map['missing'] as List).map((v) => v.toString())],
+          );
+        }
+        if (code == 'quest_locked') {
+          final r = map['remaining'];
+          return QuestLockedError(remaining: r is num ? r.toInt() : null);
+        }
+        return ConflictError(code: code);
       case 422:
         if (errors.containsKey('Idempotency-Key')) return const IdempotencyKeyError();
         return ValidationError(fields: errors);
@@ -155,6 +168,33 @@ class ConflictError extends AppApiError {
   String get message => questionAnswered
       ? 'This question has an answer, so it cannot be changed.'
       : 'That cannot be done right now.';
+}
+
+/// 409 from a Msafara gate: the journey has not started, the terms are not accepted,
+/// or the profile is incomplete. The screen goes back to the state that fixes it.
+class MsafaraGateError extends AppApiError {
+  const MsafaraGateError({required this.code, this.missing = const []});
+  static const codes = {'not_started', 'terms_required', 'profile_required'};
+
+  final String code;
+
+  /// For `profile_required`: `grade`, `county`.
+  final List<String> missing;
+
+  @override
+  String get message => switch (code) {
+        'not_started' => 'The journey has not started yet.',
+        'terms_required' => 'Accept the terms first.',
+        _ => 'Complete your profile first.',
+      };
+}
+
+/// 409 `quest_locked`: the reading time is not done yet.
+class QuestLockedError extends AppApiError {
+  const QuestLockedError({this.remaining});
+  final int? remaining;
+  @override
+  String get message => 'Keep reading. The questions open when the time is done.';
 }
 
 /// 409 without a code: the same action is still being processed.

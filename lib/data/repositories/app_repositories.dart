@@ -11,7 +11,8 @@ class AppRepositories {
         lessons = LessonRepository(api),
         questions = QuestionsRepository(api),
         notifications = NotificationsRepository(api),
-        account = AccountRepository(api);
+        account = AccountRepository(api),
+        msafara = MsafaraRepository(api);
 
   factory AppRepositories.fromClient(ApiClient client) =>
       AppRepositories(ApiCall(client.appV1));
@@ -22,4 +23,5 @@ class AppRepositories {
   final QuestionsRepository questions;
   final NotificationsRepository notifications;
   final AccountRepository account;
+  final MsafaraRepository msafara;
 }

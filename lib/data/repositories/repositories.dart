@@ -4,6 +4,7 @@ import '../models/account.dart';
 import '../models/home.dart';
 import '../models/learning.dart';
 import '../models/lesson.dart';
+import '../models/msafara.dart';
 
 Paged<T> _paged<T>(Envelope e, T Function(Map<String, dynamic>) parse) {
   final meta = e.meta ?? const <String, dynamic>{};
@@ -200,5 +201,43 @@ class AccountRepository {
 
   Future<void> logoutAll() async {
     await _api.post('/auth/logout-all');
+  }
+}
+
+/// Elimu Quest (Msafara), `/msafara/*`. Every write takes the caller's key, so a retry of the
+/// same action sends the same key.
+class MsafaraRepository {
+  MsafaraRepository(this._api);
+  final ApiCall _api;
+
+  /// Always available; the app calls it on launch and after every terms or profile change.
+  Future<MsafaraState> state() async {
+    final e = await _api.get('/msafara/state');
+    return parsed(() => MsafaraState.fromJson(e.object));
+  }
+
+  /// [lang] is `en` or `sw`.
+  Future<Terms> terms({String lang = 'en'}) async {
+    final e = await _api.get('/msafara/terms', query: {'lang': lang});
+    return parsed(() => Terms.fromJson(e.object));
+  }
+
+  /// Both boxes must be ticked; the server answers 422 otherwise.
+  Future<TermsResult> acceptTerms({required String key}) async {
+    final e = await _api.post('/msafara/terms',
+        body: {'accept_terms': true, 'parent_agreed': true}, idempotencyKey: key);
+    return parsed(() => TermsResult.fromJson(e.object));
+  }
+
+  Future<ProfileForm> profile() async {
+    final e = await _api.get('/msafara/profile');
+    return parsed(() => ProfileForm.fromJson(e.object));
+  }
+
+  /// Send only the fields that are missing.
+  Future<ProfileResult> saveProfile({String? grade, String? county, required String key}) async {
+    final e = await _api.post('/msafara/profile',
+        body: {if (grade != null) 'grade': grade, if (county != null) 'county': county}, idempotencyKey: key);
+    return parsed(() => ProfileResult.fromJson(e.object));
   }
 }
