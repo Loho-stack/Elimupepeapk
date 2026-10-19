@@ -22,6 +22,23 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
+    val forceCompileSdk: Project.() -> Unit = {
+        if (name != "app") {
+            extensions.findByName("android")?.let { ext ->
+                try {
+                    ext.javaClass
+                        .getMethod("setCompileSdk", Integer::class.javaObjectType)
+                        .invoke(ext, 36)
+                } catch (e: Exception) {
+                    logger.warn("compileSdk override skipped for $name: ${e.message}")
+                }
+            }
+        }
+    }
+    if (state.executed) forceCompileSdk() else afterEvaluate { forceCompileSdk() }
+}
+
+subprojects {
     project.evaluationDependsOn(":app")
 }
 
