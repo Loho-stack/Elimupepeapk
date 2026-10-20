@@ -1,9 +1,17 @@
 {
   "$schema": "https://app.kilo.ai/config.json",
+  "snapshot": false,
   "mcp": {
     "firebase": {
       "type": "local",
-      "command": ["npx", "-y", "firebase-tools", "mcp", "--dir", "."],
+      "command": [
+        "npx",
+        "-y",
+        "firebase-tools",
+        "mcp",
+        "--dir",
+        "."
+      ],
       "enabled": true,
       "timeout": 30000
     }

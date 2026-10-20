@@ -35,7 +35,7 @@ class StudentShell extends StatefulWidget {
   static const items = [
     ClayNavItem(label: 'Home', icon: ClayIcons.home),
     ClayNavItem(label: 'Learn', icon: ClayIcons.learn),
-    ClayNavItem(label: 'Elimu Quest', icon: ClayIcons.quest),
+    ClayNavItem(label: 'Elimu Quest', icon: ClayIcons.msafara),
     ClayNavItem(label: 'My Library', icon: ClayIcons.library),
   ];
 
